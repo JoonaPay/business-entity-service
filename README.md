@@ -1,99 +1,260 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Business Entity Management Service
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+## 🏢 Overview
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+The Business Entity Management Service is a sophisticated microservice that powers the organizational infrastructure for the JoonaPay fintech platform. It provides comprehensive business hierarchy management, API access control, team collaboration, and role-based permissions - similar to how Stripe, Twilio, and other successful B2B SaaS platforms operate.
 
-## Description
+## 🎯 Key Features
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+### Hierarchical Business Organization
+- **5-Level Hierarchy System**: ROOT_ORGANIZATION → SUBSIDIARY → DIVISION → DEPARTMENT → TEAM
+- **Parent-Child Relationships**: Businesses can create sub-businesses with inherited permissions
+- **Organigram Support**: Complex corporate structures with cascading permissions
+- **Resource Allocation**: Proportional limits and quotas for child businesses
 
-## Project setup
+### API Access Management
+- **Dual Environment System**:
+  - **Sandbox**: Immediate API keys for testing (test_xxx prefix)
+  - **Production**: Requires KYC verification + signed contracts (live_xxx prefix)
+- **Rate Limiting**: Tier-based API call limits with usage tracking
+- **IP Allowlisting**: Security controls for production environments
+- **Webhook Configuration**: Per-environment webhook URLs with HMAC secrets
 
+### Team & Role Management
+- **Multi-User Collaboration**: Multiple team members per business entity
+- **RBAC System**: Fine-grained role-based access control
+- **Predefined Roles**: Owner, Admin, Manager, Member, Viewer
+- **Custom Roles**: Create business-specific roles with custom permissions
+- **Invitation System**: Email-based team member invitations with expiration
+
+### Billing & Compliance
+- **Tiered Pricing**:
+  - **FREE**: 1,000 API calls/day, 1 sub-business, 3 members
+  - **STARTUP**: 10,000 API calls/day, 5 sub-businesses, 10 members
+  - **ENTERPRISE**: 100,000 API calls/day, 50 sub-businesses, 100 members
+- **Usage Tracking**: Real-time API call monitoring for billing
+- **KYC/KYB Integration**: Compliance verification for production access
+- **Contract Management**: Digital agreement tracking
+
+## 🚀 Getting Started
+
+### Prerequisites
 ```bash
-$ npm install
+- Node.js 18+
+- PostgreSQL 14+
+- Redis (for caching)
+- Docker (optional)
 ```
 
-## Compile and run the project
+### Installation
 
+1. Clone the repository:
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+git clone https://github.com/JoonaPay/business-entity-service.git
+cd business-entity-service
 ```
 
-## Run tests
-
+2. Install dependencies:
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+npm install
 ```
 
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
+3. Configure environment:
 ```bash
-$ npm install -g mau
-$ mau deploy
+cp .env.example .env
+# Edit .env with your configuration
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+4. Run database migrations:
+```bash
+npm run migration:run
+```
 
-## Resources
+5. Start the service:
+```bash
+# Development
+npm run start:dev
 
-Check out a few resources that may come in handy when working with NestJS:
+# Production
+npm run build
+npm run start:prod
+```
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+## 📚 API Documentation
 
-## Support
+### Authentication
+All API requests require JWT authentication via the Identity Service:
+```bash
+Authorization: Bearer <jwt_token>
+```
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+### Core Endpoints
 
-## Stay in touch
+#### Business Management
+```typescript
+POST   /api/businesses                 // Create root organization
+GET    /api/businesses                 // List user's businesses
+GET    /api/businesses/:id             // Get business details
+PUT    /api/businesses/:id             // Update business
+POST   /api/businesses/:id/verify      // Submit for KYC verification
+POST   /api/businesses/:id/subsidiaries // Create sub-business
+```
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+#### API Key Management
+```typescript
+POST   /api/businesses/:id/api-keys    // Generate API key
+GET    /api/businesses/:id/api-keys    // List API keys
+DELETE /api/businesses/:id/api-keys/:keyId // Revoke API key
+POST   /api/businesses/:id/enable-production // Enable production access
+```
 
-## License
+#### Team Management
+```typescript
+GET    /api/businesses/:id/members     // List team members
+POST   /api/businesses/:id/invitations // Send invitation
+PUT    /api/invitations/:token/accept  // Accept invitation
+PUT    /api/businesses/:id/members/:userId/role // Change member role
+DELETE /api/businesses/:id/members/:userId // Remove member
+POST   /api/businesses/:id/transfer-ownership // Transfer ownership
+```
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+#### Role Management
+```typescript
+GET    /api/businesses/:id/roles       // List roles
+POST   /api/businesses/:id/roles       // Create custom role
+PUT    /api/businesses/:id/roles/:roleId // Update role
+GET    /api/permissions                // List available permissions
+```
+
+## 🏗️ Architecture
+
+### Domain-Driven Design (DDD)
+```
+src/
+├── modules/
+│   ├── business-entity/
+│   │   ├── domain/           # Business logic & entities
+│   │   ├── application/      # Use cases & DTOs
+│   │   └── infrastructure/   # Database & external services
+│   ├── business-role/
+│   ├── business-member/
+│   └── business-invitation/
+└── core/                      # Shared kernel
+```
+
+### Key Domain Entities
+
+#### BusinessEntity
+```typescript
+class BusinessEntity {
+  // Hierarchy
+  businessType: BusinessType;
+  parentBusinessId?: string;
+  childBusinessIds: string[];
+  
+  // API Management
+  environments: {
+    sandbox: EnvironmentConfig;
+    production: EnvironmentConfig;
+  };
+  
+  // Billing
+  billing: {
+    tier: 'FREE' | 'STARTUP' | 'ENTERPRISE';
+    usage: UsageMetrics;
+    limits: RateLimits;
+  };
+  
+  // Compliance
+  compliance: {
+    kycStatus: VerificationStatus;
+    contractSigned: boolean;
+  };
+}
+```
+
+## 🔄 Event-Driven Architecture
+
+### Published Events
+- `BusinessEntityCreated`
+- `BusinessEntityVerified`
+- `MemberInvited`
+- `MemberJoined`
+- `APIKeyCreated`
+- `OwnershipTransferred`
+
+### Consumed Events
+- `UserCreated` (from Identity Service)
+- `KYCVerificationCompleted` (from Compliance Service)
+
+## 🧪 Testing
+
+```bash
+# Unit tests
+npm run test
+
+# Integration tests
+npm run test:integration
+
+# E2E tests
+npm run test:e2e
+
+# Coverage report
+npm run test:cov
+```
+
+## 📊 Monitoring
+
+- **Health Check**: `GET /health`
+- **Metrics**: `GET /metrics` (Prometheus format)
+- **OpenAPI Spec**: `GET /api-docs`
+
+## 🔒 Security
+
+- JWT-based authentication
+- Role-based authorization
+- API key validation with rate limiting
+- IP allowlisting for production
+- Audit logging for all operations
+- HMAC webhook signatures
+
+## 🚢 Deployment
+
+### Docker
+```bash
+docker build -t business-entity-service .
+docker run -p 3000:3000 business-entity-service
+```
+
+### Kubernetes
+```bash
+kubectl apply -f k8s/deployment.yaml
+kubectl apply -f k8s/service.yaml
+```
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is part of the JoonaPay platform and is proprietary software.
+
+## 🔗 Related Services
+
+- [Identity Manager Service](https://github.com/JoonaPay/identity-manager-service)
+- [Ledger Service](https://github.com/JoonaPay/ledger-service)
+- [Compliance Service](https://github.com/JoonaPay/compliance-service)
+- [AML Risk Manager Service](https://github.com/JoonaPay/aml-risk-manager-service)
+
+## 📞 Support
+
+For questions and support, please contact the JoonaPay engineering team.
+
+---
+
+Built with ❤️ by the JoonaPay Team
