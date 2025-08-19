@@ -1,37 +1,47 @@
 import { BusinessroleOrmEntity } from "@modules/business-role/infrastructure/orm-entities/business-role.orm-entity";
-import { BusinessroleEntity } from "@modules/business-role/domain/entities/business-role.entity";
+import { BusinessRole } from "@modules/business-role/domain/entities/business-role.entity";
 import { Injectable } from "@nestjs/common";
 
 @Injectable()
 export class BusinessroleMapper {
-  toOrmEntity(domainEntity: BusinessroleEntity): BusinessroleOrmEntity {
+  toOrmEntity(domainEntity: BusinessRole): BusinessroleOrmEntity {
     if (!domainEntity) {
       throw new Error('Domain entity is required');
     }
 
     const ormEntity = new BusinessroleOrmEntity();
     ormEntity.id = domainEntity.id;
-    ormEntity.isActive = domainEntity.isActive;
+    ormEntity.isActive = true;
     ormEntity.createdAt = domainEntity.createdAt;
     ormEntity.updatedAt = domainEntity.updatedAt;
     ormEntity.deletedAt = domainEntity.deletedAt;
-    // Map your properties from camelCase to snake_case
-    // Example: ormEntity.property_name = domainEntity.propertyName;
+    ormEntity.business_id = domainEntity.businessId;
+    ormEntity.name = domainEntity.name;
+    ormEntity.description = domainEntity.description;
+    ormEntity.permissions = domainEntity.permissions;
+    ormEntity.is_system_role = domainEntity.isSystemRole;
+    ormEntity.is_customizable = domainEntity.isCustomizable;
+    ormEntity.hierarchy = domainEntity.hierarchy;
+    ormEntity.metadata = domainEntity.metadata;
     
     return ormEntity;
   }
 
-  toDomainEntity(ormEntity: BusinessroleOrmEntity): BusinessroleEntity {
-    const entity = new BusinessroleEntity({
+  toDomainEntity(ormEntity: BusinessroleOrmEntity): BusinessRole {
+    if (!ormEntity) {
+      throw new Error('ORM entity is required');
+    }
+
+    return new BusinessRole({
       id: ormEntity.id,
-      isActive: ormEntity.isActive,
-      createdAt: ormEntity.createdAt,
-      updatedAt: ormEntity.updatedAt,
-      deletedAt: ormEntity.deletedAt,
-      // Map your properties from snake_case to camelCase
-      // Example: propertyName: ormEntity.property_name,
+      businessId: ormEntity.business_id,
+      name: ormEntity.name,
+      description: ormEntity.description,
+      permissions: ormEntity.permissions as any, // Type conversion needed
+      isSystemRole: ormEntity.is_system_role,
+      isCustomizable: ormEntity.is_customizable,
+      hierarchy: ormEntity.hierarchy,
+      metadata: ormEntity.metadata || {},
     });
-    
-    return entity;
   }
 }

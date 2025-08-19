@@ -1,25 +1,26 @@
 import { Module } from "@nestjs/common";
-import { CqrsModule } from "@nestjs/cqrs";
-import { Repositories } from "@modules/business-entity/infrastructure/repositories";
-import { Queries } from "@modules/business-entity/application/queries";
-import { Mappers } from "@modules/business-entity/infrastructure/mappers";
-import { UseCases } from "@modules/business-entity/application/domain/usecases";
-import { Controllers } from "@modules/business-entity/application/controllers";
-import { CommandHandlers } from "@modules/business-entity/application/commands";
-import { OrmEntities } from "@modules/business-entity/infrastructure/orm-entities";
-import { TypeOrmModule } from "@nestjs/typeorm";
-import { Services } from "@modules/business-entity/application/domain/services";
+import { BusinessEntityController } from "./application/controllers/business-entity.controller";
+import { CreateBusinessEntityUseCase, GetBusinessEntityUseCase, ListBusinessEntitiesUseCase, UpdateBusinessEntityUseCase, DeleteBusinessEntityUseCase } from "./application/usecases";
+import { CreateBusinessEntityHandler, UpdateBusinessEntityHandler, DeleteBusinessEntityHandler } from "./application/commands";
 
 @Module({
-  imports: [TypeOrmModule.forFeature([...OrmEntities]), CqrsModule],
   providers: [
-    ...CommandHandlers,
-    ...Queries,
-    ...Repositories,
-    ...Mappers,
-    ...UseCases,
-    ...Services,
+    CreateBusinessEntityUseCase,
+    GetBusinessEntityUseCase,
+    ListBusinessEntitiesUseCase,
+    UpdateBusinessEntityUseCase,
+    DeleteBusinessEntityUseCase,
+    CreateBusinessEntityHandler,
+    UpdateBusinessEntityHandler,
+    DeleteBusinessEntityHandler,
   ],
-  controllers: [...Controllers],
+  controllers: [BusinessEntityController],
+  exports: [
+    CreateBusinessEntityUseCase,
+    GetBusinessEntityUseCase,
+    ListBusinessEntitiesUseCase,
+    UpdateBusinessEntityUseCase,
+    DeleteBusinessEntityUseCase,
+  ],
 })
 export class BusinessEntityModule {}

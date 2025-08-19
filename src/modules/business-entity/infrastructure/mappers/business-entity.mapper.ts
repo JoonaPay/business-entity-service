@@ -1,17 +1,17 @@
-import { BusinessentityOrmEntity } from "@modules/business-entity/infrastructure/orm-entities/business-entity.orm-entity";
-import { BusinessentityEntity } from "@modules/business-entity/domain/entities/business-entity.entity";
+import { BusinessEntityOrmEntity } from "@modules/business-entity/infrastructure/orm-entities";
+import { BusinessEntity } from "@modules/business-entity/domain/entities";
 import { Injectable } from "@nestjs/common";
 
 @Injectable()
-export class BusinessentityMapper {
-  toOrmEntity(domainEntity: BusinessentityEntity): BusinessentityOrmEntity {
+export class BusinessEntityMapper {
+  toOrmEntity(domainEntity: BusinessEntity): BusinessEntityOrmEntity {
     if (!domainEntity) {
       throw new Error('Domain entity is required');
     }
 
-    const ormEntity = new BusinessentityOrmEntity();
+    const ormEntity = new BusinessEntityOrmEntity();
     ormEntity.id = domainEntity.id;
-    ormEntity.isActive = domainEntity.isActive;
+    ormEntity.isActive = domainEntity.isActive();
     ormEntity.createdAt = domainEntity.createdAt;
     ormEntity.updatedAt = domainEntity.updatedAt;
     ormEntity.deletedAt = domainEntity.deletedAt;
@@ -21,17 +21,17 @@ export class BusinessentityMapper {
     return ormEntity;
   }
 
-  toDomainEntity(ormEntity: BusinessentityOrmEntity): BusinessentityEntity {
-    const entity = new BusinessentityEntity({
-      id: ormEntity.id,
-      isActive: ormEntity.isActive,
-      createdAt: ormEntity.createdAt,
-      updatedAt: ormEntity.updatedAt,
-      deletedAt: ormEntity.deletedAt,
-      // Map your properties from snake_case to camelCase
-      // Example: propertyName: ormEntity.property_name,
-    });
-    
+  toDomainEntity(ormEntity: BusinessEntityOrmEntity): BusinessEntity {
+    const entity = BusinessEntity.createRootOrganization(
+      'temp',
+      'temp',
+      'LLC' as any,
+      'temp',
+      {} as any,
+      {} as any,
+      'temp'
+    );
+    // TODO: Map properties properly from ORM entity
     return entity;
   }
 }

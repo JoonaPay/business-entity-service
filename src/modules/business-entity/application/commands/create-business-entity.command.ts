@@ -1,27 +1,27 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
-import { CreateBusinessentityUseCase } from "@modules/business-entity/application/usecases/create-business-entity.use-case";
-import { CreateBusinessentityDto } from "@modules/business-entity/application/dto/requests/create-business-entity.dto";
+import { CreateBusinessEntityUseCase } from "../usecases/create-business-entity.use-case";
 
-export class CreateBusinessentityCommand {
-  // Add your command properties here
-  // They should match your entity properties in camelCase
-  
+export class CreateBusinessEntityCommand {
   constructor(
-    data: CreateBusinessentityDto,
-    public readonly contextId: string, // e.g., userId, tenantId
-  ) {
-    // Transform snake_case DTO to camelCase command properties
-    // Example: this.propertyName = data.property_name;
-  }
+    public readonly name: string,
+    public readonly legalName: string,
+    public readonly legalStructure: string,
+    public readonly businessType: string,
+    public readonly industryCode: string,
+    public readonly address: any,
+    public readonly contactInfo: any,
+    public readonly ownerId: string,
+    public readonly description?: string,
+  ) {}
 }
 
-@CommandHandler(CreateBusinessentityCommand)
-export class CreateBusinessentityHandler
-  implements ICommandHandler<CreateBusinessentityCommand>
+@CommandHandler(CreateBusinessEntityCommand)
+export class CreateBusinessEntityHandler
+  implements ICommandHandler<CreateBusinessEntityCommand>
 {
-  constructor(private readonly useCase: CreateBusinessentityUseCase) {}
+  constructor(private readonly useCase: CreateBusinessEntityUseCase) {}
 
-  async execute(command: CreateBusinessentityCommand) {
+  async execute(command: CreateBusinessEntityCommand) {
     return this.useCase.execute(command);
   }
 }

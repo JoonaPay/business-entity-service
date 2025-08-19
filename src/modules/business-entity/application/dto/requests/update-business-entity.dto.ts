@@ -1,18 +1,38 @@
 import { ApiProperty } from "@nestjs/swagger";
 import {
-  IsDefined,
-  IsNotEmpty,
+  IsOptional,
   IsString,
-  IsNumber,
-  IsUUID,
+  IsObject,
 } from "class-validator";
 
-export class CreateBusinessentityDto {
-  // Add your DTO properties here in snake_case
-  // Example:
-  // @ApiProperty()
-  // @IsString()
-  // @IsNotEmpty()
-  // @IsDefined()
-  // property_name: string;
+export class UpdateBusinessEntityDto {
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  description?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsObject()
+  address?: {
+    street: string;
+    city: string;
+    state: string;
+    zipCode: string;
+    country: string;
+  };
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsObject()
+  contactInfo?: {
+    email: string;
+    phone?: string;
+    website?: string;
+  };
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsObject()
+  settings?: any;
 }

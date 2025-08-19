@@ -1,25 +1,25 @@
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import { BusinessentityMapper } from "@modules/business-entity/infrastructure/mappers/business-entity.mapper";
-import { BusinessentityOrmEntity } from "@modules/business-entity/infrastructure/orm-entities/business-entity.orm-entity";
-import { BusinessentityEntity } from "@modules/business-entity/domain/entities/business-entity.entity";
+import { BusinessEntityMapper } from "@modules/business-entity/infrastructure/mappers";
+import { BusinessEntityOrmEntity } from "@modules/business-entity/infrastructure/orm-entities";
+import { BusinessEntity } from "@modules/business-entity/domain/entities";
 import { Injectable } from "@nestjs/common";
 
 @Injectable()
-export class BusinessentityRepository {
+export class BusinessEntityRepository {
   constructor(
-    @InjectRepository(BusinessentityOrmEntity)
-    private readonly repository: Repository<BusinessentityOrmEntity>,
-    private readonly mapper: BusinessentityMapper,
+    @InjectRepository(BusinessEntityOrmEntity)
+    private readonly repository: Repository<BusinessEntityOrmEntity>,
+    private readonly mapper: BusinessEntityMapper,
   ) {}
 
-  async create(entity: BusinessentityEntity): Promise<BusinessentityEntity> {
+  async create(entity: BusinessEntity): Promise<BusinessEntity> {
     const ormEntity = this.mapper.toOrmEntity(entity);
     const savedOrmEntity = await this.repository.save(ormEntity);
     return this.mapper.toDomainEntity(savedOrmEntity);
   }
 
-  async findById(id: string): Promise<BusinessentityEntity | null> {
+  async findById(id: string): Promise<BusinessEntity | null> {
     const ormEntity = await this.repository.findOne({
       where: { id },
     });
@@ -29,7 +29,7 @@ export class BusinessentityRepository {
     return this.mapper.toDomainEntity(ormEntity);
   }
 
-  async findAll(): Promise<BusinessentityEntity[]> {
+  async findAll(): Promise<BusinessEntity[]> {
     const ormEntities = await this.repository.find();
     if (!ormEntities) {
       return [];
@@ -41,8 +41,8 @@ export class BusinessentityRepository {
 
   async update(
     id: string,
-    entity: BusinessentityEntity,
-  ): Promise<BusinessentityEntity> {
+    entity: BusinessEntity,
+  ): Promise<BusinessEntity> {
     const ormEntity = this.mapper.toOrmEntity(entity);
     await this.repository.update(id, ormEntity);
     return entity;

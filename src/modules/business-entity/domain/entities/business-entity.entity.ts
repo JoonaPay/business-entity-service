@@ -386,14 +386,191 @@ export class BusinessEntity extends BaseDomainEntity {
   }
 
   public canHaveSubsidiaries(): boolean {
-    return this._settings.allowSubsidiaries;
+    return this._settings.allowSubsidiaries && 
+           this._childBusinessIds.length < this._billing.limits.maxSubBusinesses;
   }
 
   public canAddMembers(): boolean {
-    if (!this._settings.maxMembers) {
-      return true;
-    }
     return true;
+  }
+
+  public isRootOrganization(): boolean {
+    return this._businessType === BusinessType.ROOT_ORGANIZATION;
+  }
+
+  public getHierarchyLevel(): number {
+    return this._hierarchy.level;
+  }
+
+  public getHierarchyPath(): string[] {
+    return [...this._hierarchy.path];
+  }
+
+  public addChildBusiness(childBusinessId: string): void {
+    if (!this.canHaveSubsidiaries()) {
+      throw new Error('Business cannot have subsidiaries or limit exceeded');
+    }
+    
+    if (!this._childBusinessIds.includes(childBusinessId)) {
+      this._childBusinessIds.push(childBusinessId);
+      this.touch();
+    }
+  }
+
+  public removeChildBusiness(childBusinessId: string): void {
+    const index = this._childBusinessIds.indexOf(childBusinessId);
+    if (index > -1) {
+      this._childBusinessIds.splice(index, 1);
+      this.touch();
+    }
+  }
+
+  public createAPIKey(
+    environment: Environment,
+    name: string,
+    scopes: string[],
+    rateLimit?: number
+  ): APIKey {
+    if (environment === Environment.PRODUCTION && !this.isVerified()) {
+      throw new Error('Production API keys require business verification');
+    }
+
+    if (environment === Environment.PRODUCTION && !this._compliance.contractSigned) {
+      throw new Error('Production API keys require signed contract');
+    }
+
+    const prefix = environment === Environment.PRODUCTION ? 'live_' : 'test_';
+    const apiKey: APIKey = {
+      id: this.generateId(),
+      key: this.generateAPIKey(prefix),
+      name,
+      environment,
+      scopes,
+      isActive: true,
+      rateLimit: rateLimit || this._environments[environment.toLowerCase() as 'sandbox' | 'production'].rateLimit,
+      createdAt: new Date()
+    };
+
+    const envKey = environment.toLowerCase() as 'sandbox' | 'production';
+    this._environments[envKey].apiKeys.push(apiKey);
+    this.touch();
+
+    return apiKey;
+  }
+
+  public revokeAPIKey(keyId: string, environment: Environment): void {
+    const envKey = environment.toLowerCase() as 'sandbox' | 'production';
+    const keyIndex = this._environments[envKey].apiKeys.findIndex(key => key.id === keyId);
+    
+    if (keyIndex > -1) {
+      this._environments[envKey].apiKeys[keyIndex].isActive = false;
+      this.touch();
+    }
+  }
+
+  public validateAPIKey(apiKey: string): APIKey | null {
+    for (const env of ['sandbox', 'production'] as const) {
+      const key = this._environments[env].apiKeys.find(
+        k => k.key === apiKey && k.isActive && (!k.expiresAt || k.expiresAt > new Date())
+      );
+      if (key) return key;
+    }
+    return null;
+  }
+
+  public trackUsage(apiCallCount: number = 1): void {
+    this._billing.usage.apiCallsToday += apiCallCount;
+    this._billing.usage.apiCallsMonth += apiCallCount;
+    
+    if (this._billing.usage.apiCallsToday > this._billing.limits.apiCallsPerDay) {
+      throw new Error('Daily API call limit exceeded');
+    }
+    
+    if (this._billing.usage.apiCallsMonth > this._billing.limits.apiCallsPerMonth) {
+      throw new Error('Monthly API call limit exceeded');
+    }
+    
+    this.touch();
+  }
+
+  public resetDailyUsage(): void {
+    this._billing.usage.apiCallsToday = 0;
+    this._billing.usage.lastResetDate = new Date();
+    this.touch();
+  }
+
+  public enableProductionEnvironment(): void {
+    if (!this.isVerified()) {
+      throw new Error('Business verification required for production access');
+    }
+    
+    if (!this._compliance.contractSigned) {
+      throw new Error('Service agreement must be signed for production access');
+    }
+    
+    this._environments.production.isEnabled = true;
+    this.touch();
+  }
+
+  public updateBillingTier(tier: 'FREE' | 'STARTUP' | 'ENTERPRISE'): void {
+    this._billing.tier = tier;
+    
+    switch (tier) {
+      case 'FREE':
+        this._billing.limits = {
+          apiCallsPerDay: 1000,
+          apiCallsPerMonth: 10000,
+          maxSubBusinesses: 1,
+          maxMembers: 3
+        };
+        break;
+      case 'STARTUP':
+        this._billing.limits = {
+          apiCallsPerDay: 10000,
+          apiCallsPerMonth: 100000,
+          maxSubBusinesses: 5,
+          maxMembers: 10
+        };
+        break;
+      case 'ENTERPRISE':
+        this._billing.limits = {
+          apiCallsPerDay: 100000,
+          apiCallsPerMonth: 1000000,
+          maxSubBusinesses: 50,
+          maxMembers: 100
+        };
+        break;
+    }
+    
+    this.touch();
+  }
+
+  public updateCompliance(updates: Partial<ComplianceInfo>): void {
+    this._compliance = { ...this._compliance, ...updates };
+    this.touch();
+  }
+
+  public canCreateChildOfType(childType: BusinessType): boolean {
+    return this._hierarchy.allowedChildTypes.includes(childType);
+  }
+
+  public cascadeStatusChange(newStatus: BusinessStatus, childBusinessIds: string[]): void {
+    if (!this._settings.cascadeStatusChanges) {
+      return;
+    }
+    
+    this._status = newStatus;
+    this.touch();
+  }
+
+  private generateAPIKey(prefix: string): string {
+    const timestamp = Date.now().toString(36);
+    const random = Math.random().toString(36).substring(2, 15);
+    return `${prefix}${timestamp}${random}`;
+  }
+
+  private generateId(): string {
+    return Date.now().toString(36) + Math.random().toString(36).substring(2);
   }
 
   private validateBusinessRules(): void {
@@ -560,54 +737,54 @@ export class BusinessEntity extends BaseDomainEntity {
       address: parentBusiness.address,
       contactInfo: parentBusiness.contactInfo,
       status: BusinessStatus.ACTIVE,
-      verificationStatus: parentBusiness.settings.autoInheritPermissions 
-        ? parentBusiness.verificationStatus 
+      verificationStatus: parentBusiness._settings.autoInheritPermissions 
+        ? parentBusiness._verificationStatus 
         : VerificationStatus.UNVERIFIED,
       parentBusinessId: parentBusiness.id,
-      rootBusinessId: parentBusiness.rootBusinessId || parentBusiness.id,
+      rootBusinessId: parentBusiness._rootBusinessId || parentBusiness.id,
       ownerId,
       hierarchy: {
         level: newLevel,
         path: newPath,
-        maxDepth: parentBusiness.hierarchy.maxDepth,
+        maxDepth: parentBusiness._hierarchy.maxDepth,
         allowedChildTypes
       },
       settings: {
-        ...parentBusiness.settings,
-        allowSubsidiaries: newLevel < parentBusiness.hierarchy.maxDepth - 1
+        ...parentBusiness._settings,
+        allowSubsidiaries: newLevel < parentBusiness._hierarchy.maxDepth - 1
       },
       environments: {
         sandbox: {
           apiKeys: [],
           ipAllowlist: [],
-          rateLimit: Math.floor(parentBusiness.environments.sandbox.rateLimit * 0.5),
+          rateLimit: Math.floor(parentBusiness._environments.sandbox.rateLimit * 0.5),
           isEnabled: true
         },
         production: {
           apiKeys: [],
           ipAllowlist: [],
-          rateLimit: Math.floor(parentBusiness.environments.production.rateLimit * 0.5),
-          isEnabled: parentBusiness.environments.production.isEnabled
+          rateLimit: Math.floor(parentBusiness._environments.production.rateLimit * 0.5),
+          isEnabled: parentBusiness._environments.production.isEnabled
         }
       },
       billing: {
-        ...parentBusiness.billing,
+        ...parentBusiness._billing,
         usage: {
           apiCallsToday: 0,
           apiCallsMonth: 0,
           lastResetDate: new Date()
         },
         limits: {
-          apiCallsPerDay: Math.floor(parentBusiness.billing.limits.apiCallsPerDay * 0.3),
-          apiCallsPerMonth: Math.floor(parentBusiness.billing.limits.apiCallsPerMonth * 0.3),
-          maxSubBusinesses: Math.floor(parentBusiness.billing.limits.maxSubBusinesses * 0.5),
-          maxMembers: Math.floor(parentBusiness.billing.limits.maxMembers * 0.5)
+          apiCallsPerDay: Math.floor(parentBusiness._billing.limits.apiCallsPerDay * 0.3),
+          apiCallsPerMonth: Math.floor(parentBusiness._billing.limits.apiCallsPerMonth * 0.3),
+          maxSubBusinesses: Math.floor(parentBusiness._billing.limits.maxSubBusinesses * 0.5),
+          maxMembers: Math.floor(parentBusiness._billing.limits.maxMembers * 0.5)
         }
       },
       compliance: {
-        ...parentBusiness.compliance,
-        kycStatus: parentBusiness.settings.autoInheritPermissions 
-          ? parentBusiness.compliance.kycStatus 
+        ...parentBusiness._compliance,
+        kycStatus: parentBusiness._settings.autoInheritPermissions 
+          ? parentBusiness._compliance.kycStatus 
           : VerificationStatus.UNVERIFIED
       },
       metadata: {

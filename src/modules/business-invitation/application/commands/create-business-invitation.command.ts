@@ -1,27 +1,33 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
-import { CreateBusinessinvitationUseCase } from "@modules/business-invitation/application/usecases/create-business-invitation.use-case";
-import { CreateBusinessinvitationDto } from "@modules/business-invitation/application/dto/requests/create-business-invitation.dto";
+import { CreateBusinessInvitationUseCase } from "@modules/business-invitation/application/usecases";
+import { CreateBusinessInvitationDto } from "@modules/business-invitation/application/dto/requests";
 
-export class CreateBusinessinvitationCommand {
-  // Add your command properties here
-  // They should match your entity properties in camelCase
+export class CreateBusinessInvitationCommand {
+  public readonly businessId: string;
+  public readonly email: string;
+  public readonly roleId: string;
+  public readonly invitedBy: string;
+  public readonly message?: string;
   
   constructor(
-    data: CreateBusinessinvitationDto,
-    public readonly contextId: string, // e.g., userId, tenantId
+    data: CreateBusinessInvitationDto,
+    public readonly contextId: string,
   ) {
-    // Transform snake_case DTO to camelCase command properties
-    // Example: this.propertyName = data.property_name;
+    this.businessId = data.businessId;
+    this.email = data.email;
+    this.roleId = data.roleId;
+    this.invitedBy = data.invitedBy;
+    this.message = data.message;
   }
 }
 
-@CommandHandler(CreateBusinessinvitationCommand)
-export class CreateBusinessinvitationHandler
-  implements ICommandHandler<CreateBusinessinvitationCommand>
+@CommandHandler(CreateBusinessInvitationCommand)
+export class CreateBusinessInvitationHandler
+  implements ICommandHandler<CreateBusinessInvitationCommand>
 {
-  constructor(private readonly useCase: CreateBusinessinvitationUseCase) {}
+  constructor(private readonly useCase: CreateBusinessInvitationUseCase) {}
 
-  async execute(command: CreateBusinessinvitationCommand) {
+  async execute(command: CreateBusinessInvitationCommand) {
     return this.useCase.execute(command);
   }
 }

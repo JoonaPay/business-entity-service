@@ -1,19 +1,19 @@
 import { Body, Controller, Get, Param, Post, Delete, Put } from "@nestjs/common";
 import { CommandBus, QueryBus } from "@nestjs/cqrs";
-import { CreateBusinessinvitationCommand } from "@modules/business-invitation/application/commands/create-business-invitation.command";
-import { CreateBusinessinvitationDto } from "@modules/business-invitation/application/dto/requests/create-business-invitation.dto";
+import { CreateBusinessInvitationCommand } from "@modules/business-invitation/application/commands";
+import { CreateBusinessInvitationDto } from "@modules/business-invitation/application/dto/requests";
 
 @Controller("business-invitations")
-export class BusinessinvitationController {
+export class BusinessInvitationController {
   constructor(
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
   ) {}
 
   @Post()
-  create(@Body() dto: CreateBusinessinvitationDto) {
+  create(@Body() dto: CreateBusinessInvitationDto) {
     const contextId = "extracted-from-token"; // TODO: Get from auth decorator
-    const command = new CreateBusinessinvitationCommand(dto, contextId);
+    const command = new CreateBusinessInvitationCommand(dto, contextId);
     return this.commandBus.execute(command);
   }
 

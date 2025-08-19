@@ -1,14 +1,14 @@
-import { BusinessinvitationEntity } from "@modules/business-invitation/domain/entities/business-invitation.entity";
-import { BusinessinvitationRepository } from "@modules/business-invitation/infrastructure/repositories/business-invitation.repository";
-import { CreateBusinessinvitationCommand } from "@modules/business-invitation/application/commands/create-business-invitation.command";
+import { BusinessInvitation } from "@modules/business-invitation/domain/entities";
+import { BusinessInvitationRepository } from "@modules/business-invitation/infrastructure/repositories";
+import { CreateBusinessInvitationCommand } from "@modules/business-invitation/application/commands";
 import { Injectable } from "@nestjs/common";
 
 @Injectable()
-export class CreateBusinessinvitationUseCase {
-  constructor(private readonly repository: BusinessinvitationRepository) {}
+export class CreateBusinessInvitationUseCase {
+  constructor(private readonly repository: BusinessInvitationRepository) {}
 
-  async execute(command: CreateBusinessinvitationCommand) {
-    const entity = new BusinessinvitationEntity(command);
-    return this.repository.create(entity);
+  async execute(command: CreateBusinessInvitationCommand) {
+    // TODO: Implement proper entity creation with business logic
+    throw new Error('Not implemented');
   }
 }

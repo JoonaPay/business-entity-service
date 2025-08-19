@@ -1,25 +1,25 @@
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import { BusinessinvitationMapper } from "@modules/business-invitation/infrastructure/mappers/business-invitation.mapper";
-import { BusinessinvitationOrmEntity } from "@modules/business-invitation/infrastructure/orm-entities/business-invitation.orm-entity";
-import { BusinessinvitationEntity } from "@modules/business-invitation/domain/entities/business-invitation.entity";
+import { BusinessInvitationMapper } from "@modules/business-invitation/infrastructure/mappers";
+import { BusinessInvitationOrmEntity } from "@modules/business-invitation/infrastructure/orm-entities";
+import { BusinessInvitation } from "@modules/business-invitation/domain/entities";
 import { Injectable } from "@nestjs/common";
 
 @Injectable()
-export class BusinessinvitationRepository {
+export class BusinessInvitationRepository {
   constructor(
-    @InjectRepository(BusinessinvitationOrmEntity)
-    private readonly repository: Repository<BusinessinvitationOrmEntity>,
-    private readonly mapper: BusinessinvitationMapper,
+    @InjectRepository(BusinessInvitationOrmEntity)
+    private readonly repository: Repository<BusinessInvitationOrmEntity>,
+    private readonly mapper: BusinessInvitationMapper,
   ) {}
 
-  async create(entity: BusinessinvitationEntity): Promise<BusinessinvitationEntity> {
+  async create(entity: BusinessInvitation): Promise<BusinessInvitation> {
     const ormEntity = this.mapper.toOrmEntity(entity);
     const savedOrmEntity = await this.repository.save(ormEntity);
     return this.mapper.toDomainEntity(savedOrmEntity);
   }
 
-  async findById(id: string): Promise<BusinessinvitationEntity | null> {
+  async findById(id: string): Promise<BusinessInvitation | null> {
     const ormEntity = await this.repository.findOne({
       where: { id },
     });
@@ -29,7 +29,7 @@ export class BusinessinvitationRepository {
     return this.mapper.toDomainEntity(ormEntity);
   }
 
-  async findAll(): Promise<BusinessinvitationEntity[]> {
+  async findAll(): Promise<BusinessInvitation[]> {
     const ormEntities = await this.repository.find();
     if (!ormEntities) {
       return [];
@@ -41,8 +41,8 @@ export class BusinessinvitationRepository {
 
   async update(
     id: string,
-    entity: BusinessinvitationEntity,
-  ): Promise<BusinessinvitationEntity> {
+    entity: BusinessInvitation,
+  ): Promise<BusinessInvitation> {
     const ormEntity = this.mapper.toOrmEntity(entity);
     await this.repository.update(id, ormEntity);
     return entity;

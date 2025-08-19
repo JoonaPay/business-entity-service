@@ -3,16 +3,63 @@ import {
   IsDefined,
   IsNotEmpty,
   IsString,
-  IsNumber,
-  IsUUID,
+  IsOptional,
+  IsObject,
 } from "class-validator";
 
-export class CreateBusinessentityDto {
-  // Add your DTO properties here in snake_case
-  // Example:
-  // @ApiProperty()
-  // @IsString()
-  // @IsNotEmpty()
-  // @IsDefined()
-  // property_name: string;
+export class CreateBusinessEntityDto {
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  @IsDefined()
+  name: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  @IsDefined()
+  legalName: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  @IsDefined()
+  legalStructure: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  @IsDefined()
+  businessType: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  @IsDefined()
+  industryCode: string;
+
+  @ApiProperty()
+  @IsObject()
+  @IsDefined()
+  address: {
+    street: string;
+    city: string;
+    state: string;
+    zipCode: string;
+    country: string;
+  };
+
+  @ApiProperty()
+  @IsObject()
+  @IsDefined()
+  contactInfo: {
+    email: string;
+    phone?: string;
+    website?: string;
+  };
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  description?: string;
 }

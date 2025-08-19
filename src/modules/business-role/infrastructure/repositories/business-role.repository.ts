@@ -2,7 +2,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { BusinessroleMapper } from "@modules/business-role/infrastructure/mappers/business-role.mapper";
 import { BusinessroleOrmEntity } from "@modules/business-role/infrastructure/orm-entities/business-role.orm-entity";
-import { BusinessroleEntity } from "@modules/business-role/domain/entities/business-role.entity";
+import { BusinessRole } from "@modules/business-role/domain/entities/business-role.entity";
 import { Injectable } from "@nestjs/common";
 
 @Injectable()
@@ -13,13 +13,13 @@ export class BusinessroleRepository {
     private readonly mapper: BusinessroleMapper,
   ) {}
 
-  async create(entity: BusinessroleEntity): Promise<BusinessroleEntity> {
+  async create(entity: BusinessRole): Promise<BusinessRole> {
     const ormEntity = this.mapper.toOrmEntity(entity);
     const savedOrmEntity = await this.repository.save(ormEntity);
     return this.mapper.toDomainEntity(savedOrmEntity);
   }
 
-  async findById(id: string): Promise<BusinessroleEntity | null> {
+  async findById(id: string): Promise<BusinessRole | null> {
     const ormEntity = await this.repository.findOne({
       where: { id },
     });
@@ -29,7 +29,7 @@ export class BusinessroleRepository {
     return this.mapper.toDomainEntity(ormEntity);
   }
 
-  async findAll(): Promise<BusinessroleEntity[]> {
+  async findAll(): Promise<BusinessRole[]> {
     const ormEntities = await this.repository.find();
     if (!ormEntities) {
       return [];
@@ -41,8 +41,8 @@ export class BusinessroleRepository {
 
   async update(
     id: string,
-    entity: BusinessroleEntity,
-  ): Promise<BusinessroleEntity> {
+    entity: BusinessRole,
+  ): Promise<BusinessRole> {
     const ormEntity = this.mapper.toOrmEntity(entity);
     await this.repository.update(id, ormEntity);
     return entity;

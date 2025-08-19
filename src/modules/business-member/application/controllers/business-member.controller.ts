@@ -2,12 +2,16 @@ import { Body, Controller, Get, Param, Post, Delete, Put } from "@nestjs/common"
 import { CommandBus, QueryBus } from "@nestjs/cqrs";
 import { CreateBusinessmemberCommand } from "@modules/business-member/application/commands/create-business-member.command";
 import { CreateBusinessmemberDto } from "@modules/business-member/application/dto/requests/create-business-member.dto";
+import { GetBusinessMemberUseCase } from "@modules/business-member/application/usecases/get-business-member.use-case";
+import { ListBusinessMembersUseCase } from "@modules/business-member/application/usecases/list-business-members.use-case";
 
 @Controller("business-members")
 export class BusinessmemberController {
   constructor(
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
+    private readonly getBusinessMemberUseCase: GetBusinessMemberUseCase,
+    private readonly listBusinessMembersUseCase: ListBusinessMembersUseCase,
   ) {}
 
   @Post()
@@ -18,15 +22,13 @@ export class BusinessmemberController {
   }
 
   @Get()
-  findAll() {
-    // TODO: Implement query handler
-    throw new Error("Not implemented");
+  async findAll() {
+    return this.listBusinessMembersUseCase.execute();
   }
 
   @Get(":id")
-  findOne(@Param("id") id: string) {
-    // TODO: Implement query handler
-    throw new Error("Not implemented");
+  async findOne(@Param("id") id: string) {
+    return this.getBusinessMemberUseCase.execute(id);
   }
 
   @Put(":id")

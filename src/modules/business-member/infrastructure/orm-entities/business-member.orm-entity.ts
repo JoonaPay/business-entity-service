@@ -17,8 +17,36 @@ export class BusinessmemberOrmEntity {
   @Column({ name: "deleted_at", type: "timestamp", nullable: true })
   deletedAt?: Date;
 
-  // Add your columns here
-  // Example:
-  // @Column()
-  // property_name: string;
+  @Column({ name: "business_id" })
+  business_id: string;
+
+  @Column({ name: "user_id" })
+  user_id: string;
+
+  @Column({ name: "role_id" })
+  role_id: string;
+
+  @Column({ name: "status", default: 'PENDING' })
+  status: string;
+
+  @Column({ name: "joined_at", type: "timestamp" })
+  joined_at: Date;
+
+  @Column({ name: "invited_by", nullable: true })
+  invited_by?: string;
+
+  @Column({ name: "permissions", type: "jsonb" })
+  permissions: string[];
+
+  @Column({ name: "is_owner", default: false })
+  is_owner: boolean;
+
+  @Column({ name: "metadata", type: "jsonb", default: '{}' })
+  metadata: Record<string, any>;
+
+  @Column({ name: "last_activity_at", type: "timestamp", nullable: true })
+  last_activity_at?: Date;
+
+  @Column({ name: "activity_history", type: "jsonb", default: '[]' })
+  activity_history: any[];
 }

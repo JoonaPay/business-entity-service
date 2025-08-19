@@ -7,12 +7,32 @@ import {
   IsUUID,
 } from "class-validator";
 
-export class CreateBusinessinvitationDto {
-  // Add your DTO properties here in snake_case
-  // Example:
-  // @ApiProperty()
-  // @IsString()
-  // @IsNotEmpty()
-  // @IsDefined()
-  // property_name: string;
+export class CreateBusinessInvitationDto {
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  @IsDefined()
+  businessId: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  @IsDefined()
+  email: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  @IsDefined()
+  roleId: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  @IsDefined()
+  invitedBy: string;
+
+  @ApiProperty({ required: false })
+  @IsString()
+  message?: string;
 }
