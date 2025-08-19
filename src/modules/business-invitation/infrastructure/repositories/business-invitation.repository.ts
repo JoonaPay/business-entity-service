@@ -1,9 +1,9 @@
-import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
-import { BusinessInvitationMapper } from "@modules/business-invitation/infrastructure/mappers";
-import { BusinessInvitationOrmEntity } from "@modules/business-invitation/infrastructure/orm-entities";
-import { BusinessInvitation } from "@modules/business-invitation/domain/entities";
-import { Injectable } from "@nestjs/common";
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { BusinessInvitationMapper } from '@modules/business-invitation/infrastructure/mappers';
+import { BusinessInvitationOrmEntity } from '@modules/business-invitation/infrastructure/orm-entities';
+import { BusinessInvitation } from '@modules/business-invitation/domain/entities';
+import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class BusinessInvitationRepository {

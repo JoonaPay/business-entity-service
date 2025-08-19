@@ -1,6 +1,6 @@
-import { Injectable } from "@nestjs/common";
-import { BusinessMember } from "@modules/business-member/domain/entities/business-member.entity";
-import { BusinessmemberRepository } from "@modules/business-member/infrastructure/repositories/business-member.repository";
+import { Injectable } from '@nestjs/common';
+import { BusinessMember } from '@modules/business-member/domain/entities/business-member.entity';
+import { BusinessmemberRepository } from '@modules/business-member/infrastructure/repositories/business-member.repository';
 
 @Injectable()
 export class ListBusinessMembersUseCase {

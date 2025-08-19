@@ -1,6 +1,6 @@
-import { BusinessmemberOrmEntity } from "@modules/business-member/infrastructure/orm-entities/business-member.orm-entity";
-import { BusinessMember } from "@modules/business-member/domain/entities/business-member.entity";
-import { Injectable } from "@nestjs/common";
+import { BusinessmemberOrmEntity } from '@modules/business-member/infrastructure/orm-entities/business-member.orm-entity';
+import { BusinessMember } from '@modules/business-member/domain/entities/business-member.entity';
+import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class BusinessmemberMapper {
@@ -26,7 +26,7 @@ export class BusinessmemberMapper {
     ormEntity.metadata = domainEntity.metadata;
     ormEntity.last_activity_at = domainEntity.lastActivityAt;
     ormEntity.activity_history = domainEntity.activityHistory;
-    
+
     return ormEntity;
   }
 

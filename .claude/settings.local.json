@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:www.npmjs.com)",
+      "Bash(ddd:*)",
+      "Bash(npx nestjs-ddd-cli:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm run lint:*)",
+      "Bash(npm install:*)",
+      "Bash(npm run start:dev:*)",
+      "Bash(PORT=3001 npm run start:dev)",
+      "Bash(curl:*)",
+      "Bash(git add:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

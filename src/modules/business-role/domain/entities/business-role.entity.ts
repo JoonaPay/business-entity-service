@@ -6,34 +6,34 @@ export enum Permission {
   BUSINESS_UPDATE = 'BUSINESS_UPDATE',
   BUSINESS_DELETE = 'BUSINESS_DELETE',
   BUSINESS_SETTINGS = 'BUSINESS_SETTINGS',
-  
+
   // Member Management
   MEMBER_INVITE = 'MEMBER_INVITE',
   MEMBER_MANAGE = 'MEMBER_MANAGE',
   MEMBER_REMOVE = 'MEMBER_REMOVE',
   MEMBER_VIEW = 'MEMBER_VIEW',
-  
+
   // Role Management
   ROLE_CREATE = 'ROLE_CREATE',
   ROLE_UPDATE = 'ROLE_UPDATE',
   ROLE_DELETE = 'ROLE_DELETE',
   ROLE_ASSIGN = 'ROLE_ASSIGN',
-  
+
   // Financial Operations
   FINANCIAL_READ = 'FINANCIAL_READ',
   FINANCIAL_WRITE = 'FINANCIAL_WRITE',
   FINANCIAL_APPROVE = 'FINANCIAL_APPROVE',
-  
+
   // Compliance and Reporting
   COMPLIANCE_READ = 'COMPLIANCE_READ',
   COMPLIANCE_MANAGE = 'COMPLIANCE_MANAGE',
   REPORTS_VIEW = 'REPORTS_VIEW',
   REPORTS_EXPORT = 'REPORTS_EXPORT',
-  
+
   // Administrative
   ADMIN_FULL_ACCESS = 'ADMIN_FULL_ACCESS',
   AUDIT_VIEW = 'AUDIT_VIEW',
-  SETTINGS_MANAGE = 'SETTINGS_MANAGE'
+  SETTINGS_MANAGE = 'SETTINGS_MANAGE',
 }
 
 export enum SystemRole {
@@ -41,7 +41,7 @@ export enum SystemRole {
   ADMIN = 'ADMIN',
   MANAGER = 'MANAGER',
   MEMBER = 'MEMBER',
-  VIEWER = 'VIEWER'
+  VIEWER = 'VIEWER',
 }
 
 export interface BusinessRoleProps {
@@ -68,7 +68,7 @@ export class BusinessRole extends BaseDomainEntity {
 
   constructor(props: BusinessRoleProps) {
     super(props.id);
-    
+
     this._businessId = props.businessId;
     this._name = props.name;
     this._description = props.description;
@@ -117,11 +117,11 @@ export class BusinessRole extends BaseDomainEntity {
     if (!this._isCustomizable) {
       throw new Error('System roles cannot be renamed');
     }
-    
+
     if (!name || name.trim().length === 0) {
       throw new Error('Role name is required');
     }
-    
+
     this._name = name.trim();
     this.touch();
   }
@@ -130,7 +130,7 @@ export class BusinessRole extends BaseDomainEntity {
     if (!this._isCustomizable) {
       throw new Error('System roles cannot have description updated');
     }
-    
+
     this._description = description;
     this.touch();
   }
@@ -139,7 +139,7 @@ export class BusinessRole extends BaseDomainEntity {
     if (!this._isCustomizable) {
       throw new Error('System role permissions cannot be modified');
     }
-    
+
     if (!this._permissions.includes(permission)) {
       this._permissions.push(permission);
       this.touch();
@@ -150,7 +150,7 @@ export class BusinessRole extends BaseDomainEntity {
     if (!this._isCustomizable) {
       throw new Error('System role permissions cannot be modified');
     }
-    
+
     const index = this._permissions.indexOf(permission);
     if (index > -1) {
       this._permissions.splice(index, 1);
@@ -162,30 +162,36 @@ export class BusinessRole extends BaseDomainEntity {
     if (!this._isCustomizable) {
       throw new Error('System role permissions cannot be modified');
     }
-    
+
     this._permissions = [...permissions];
     this.touch();
   }
 
   public hasPermission(permission: Permission): boolean {
-    return this._permissions.includes(permission) || 
-           this._permissions.includes(Permission.ADMIN_FULL_ACCESS);
+    return (
+      this._permissions.includes(permission) ||
+      this._permissions.includes(Permission.ADMIN_FULL_ACCESS)
+    );
   }
 
   public hasAllPermissions(permissions: Permission[]): boolean {
     if (this._permissions.includes(Permission.ADMIN_FULL_ACCESS)) {
       return true;
     }
-    
-    return permissions.every(permission => this._permissions.includes(permission));
+
+    return permissions.every((permission) =>
+      this._permissions.includes(permission),
+    );
   }
 
   public hasAnyPermission(permissions: Permission[]): boolean {
     if (this._permissions.includes(Permission.ADMIN_FULL_ACCESS)) {
       return true;
     }
-    
-    return permissions.some(permission => this._permissions.includes(permission));
+
+    return permissions.some((permission) =>
+      this._permissions.includes(permission),
+    );
   }
 
   public updateMetadata(metadata: Record<string, any>): void {
@@ -197,7 +203,7 @@ export class BusinessRole extends BaseDomainEntity {
     if (!this.hasPermission(Permission.ROLE_ASSIGN)) {
       return false;
     }
-    
+
     return this._hierarchy <= targetRole._hierarchy;
   }
 
@@ -210,7 +216,10 @@ export class BusinessRole extends BaseDomainEntity {
   }
 
   public isAdminRole(): boolean {
-    return this._name === SystemRole.ADMIN || this.hasPermission(Permission.ADMIN_FULL_ACCESS);
+    return (
+      this._name === SystemRole.ADMIN ||
+      this.hasPermission(Permission.ADMIN_FULL_ACCESS)
+    );
   }
 
   private validateBusinessRules(): void {
@@ -227,7 +236,9 @@ export class BusinessRole extends BaseDomainEntity {
     }
 
     if (this._isSystemRole && this._businessId) {
-      throw new Error('System roles cannot be associated with a specific business');
+      throw new Error(
+        'System roles cannot be associated with a specific business',
+      );
     }
 
     if (!this._isSystemRole && !this._businessId) {
@@ -250,10 +261,10 @@ export class BusinessRole extends BaseDomainEntity {
   }
 
   public static createSystemRole(
-    name: SystemRole, 
-    description: string, 
-    permissions: Permission[], 
-    hierarchy: number
+    name: SystemRole,
+    description: string,
+    permissions: Permission[],
+    hierarchy: number,
   ): BusinessRole {
     return new BusinessRole({
       name,
@@ -262,7 +273,7 @@ export class BusinessRole extends BaseDomainEntity {
       isSystemRole: true,
       isCustomizable: false,
       hierarchy,
-      metadata: { systemRole: true }
+      metadata: { systemRole: true },
     });
   }
 
@@ -271,7 +282,7 @@ export class BusinessRole extends BaseDomainEntity {
       SystemRole.OWNER,
       'Business Owner with full administrative privileges',
       [Permission.ADMIN_FULL_ACCESS],
-      0
+      0,
     );
   }
 
@@ -298,9 +309,9 @@ export class BusinessRole extends BaseDomainEntity {
         Permission.REPORTS_VIEW,
         Permission.REPORTS_EXPORT,
         Permission.AUDIT_VIEW,
-        Permission.SETTINGS_MANAGE
+        Permission.SETTINGS_MANAGE,
       ],
-      1
+      1,
     );
   }
 
@@ -317,9 +328,9 @@ export class BusinessRole extends BaseDomainEntity {
         Permission.FINANCIAL_WRITE,
         Permission.COMPLIANCE_READ,
         Permission.REPORTS_VIEW,
-        Permission.REPORTS_EXPORT
+        Permission.REPORTS_EXPORT,
       ],
-      2
+      2,
     );
   }
 
@@ -331,9 +342,9 @@ export class BusinessRole extends BaseDomainEntity {
         Permission.BUSINESS_READ,
         Permission.MEMBER_VIEW,
         Permission.FINANCIAL_READ,
-        Permission.REPORTS_VIEW
+        Permission.REPORTS_VIEW,
       ],
-      3
+      3,
     );
   }
 
@@ -344,9 +355,9 @@ export class BusinessRole extends BaseDomainEntity {
       [
         Permission.BUSINESS_READ,
         Permission.MEMBER_VIEW,
-        Permission.REPORTS_VIEW
+        Permission.REPORTS_VIEW,
       ],
-      4
+      4,
     );
   }
 }

@@ -1,3 +1,5 @@
 export * from './business-entity.mapper';
 
-export const Mappers = [];
+import { BusinessEntityMapper } from './business-entity.mapper';
+
+export const Mappers = [BusinessEntityMapper];

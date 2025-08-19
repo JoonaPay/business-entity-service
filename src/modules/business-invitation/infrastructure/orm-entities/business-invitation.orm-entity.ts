@@ -1,20 +1,28 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
-@Entity("business_invitations")
+@Entity('business_invitations')
 export class BusinessInvitationOrmEntity {
-  @PrimaryGeneratedColumn("uuid")
+  @PrimaryGeneratedColumn('uuid')
   id?: string;
 
-  @Column({ name: "is_active", default: true })
+  @Column({ name: 'is_active', default: true })
   isActive?: boolean;
 
-  @Column({ name: "created_at", type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
+  @Column({
+    name: 'created_at',
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+  })
   createdAt?: Date;
 
-  @Column({ name: "updated_at", type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
+  @Column({
+    name: 'updated_at',
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+  })
   updatedAt?: Date;
 
-  @Column({ name: "deleted_at", type: "timestamp", nullable: true })
+  @Column({ name: 'deleted_at', type: 'timestamp', nullable: true })
   deletedAt?: Date;
 
   // Add your columns here

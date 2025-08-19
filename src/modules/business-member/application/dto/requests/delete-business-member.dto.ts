@@ -1,11 +1,11 @@
-import { ApiProperty } from "@nestjs/swagger";
+import { ApiProperty } from '@nestjs/swagger';
 import {
   IsDefined,
   IsNotEmpty,
   IsString,
   IsNumber,
   IsUUID,
-} from "class-validator";
+} from 'class-validator';
 
 export class CreateBusinessmemberDto {
   // Add your DTO properties here in snake_case

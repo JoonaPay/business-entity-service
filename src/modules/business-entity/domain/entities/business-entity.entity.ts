@@ -7,7 +7,7 @@ export enum LegalStructure {
   CORPORATION = 'CORPORATION',
   S_CORPORATION = 'S_CORPORATION',
   NON_PROFIT = 'NON_PROFIT',
-  OTHER = 'OTHER'
+  OTHER = 'OTHER',
 }
 
 export enum BusinessStatus {
@@ -15,14 +15,14 @@ export enum BusinessStatus {
   ACTIVE = 'ACTIVE',
   SUSPENDED = 'SUSPENDED',
   INACTIVE = 'INACTIVE',
-  CLOSED = 'CLOSED'
+  CLOSED = 'CLOSED',
 }
 
 export enum VerificationStatus {
   UNVERIFIED = 'UNVERIFIED',
   PENDING = 'PENDING',
   VERIFIED = 'VERIFIED',
-  REJECTED = 'REJECTED'
+  REJECTED = 'REJECTED',
 }
 
 export interface BusinessAddress {
@@ -44,12 +44,12 @@ export enum BusinessType {
   SUBSIDIARY = 'SUBSIDIARY',
   DIVISION = 'DIVISION',
   DEPARTMENT = 'DEPARTMENT',
-  TEAM = 'TEAM'
+  TEAM = 'TEAM',
 }
 
 export enum Environment {
   SANDBOX = 'SANDBOX',
-  PRODUCTION = 'PRODUCTION'
+  PRODUCTION = 'PRODUCTION',
 }
 
 export interface APIKey {
@@ -112,6 +112,8 @@ export interface BusinessSettings {
   notificationPreferences: Record<string, boolean>;
   autoInheritPermissions: boolean;
   cascadeStatusChanges: boolean;
+  timezone?: string;
+  language?: string;
 }
 
 export interface BusinessEntityProps {
@@ -174,11 +176,12 @@ export class BusinessEntity extends BaseDomainEntity {
 
   constructor(props: BusinessEntityProps) {
     super(props.id);
-    
+
     this._name = props.name;
     this._description = props.description;
     this._legalName = props.legalName;
     this._legalStructure = props.legalStructure;
+    this._businessType = props.businessType;
     this._taxId = props.taxId;
     this._industryCode = props.industryCode;
     this._registrationNumber = props.registrationNumber;
@@ -188,9 +191,15 @@ export class BusinessEntity extends BaseDomainEntity {
     this._status = props.status;
     this._verificationStatus = props.verificationStatus;
     this._parentBusinessId = props.parentBusinessId;
+    this._rootBusinessId = props.rootBusinessId;
+    this._hierarchy = props.hierarchy;
     this._settings = props.settings;
+    this._environments = props.environments;
+    this._billing = props.billing;
+    this._compliance = props.compliance;
     this._metadata = props.metadata || {};
     this._ownerId = props.ownerId;
+    this._childBusinessIds = props.childBusinessIds || [];
 
     this.validateBusinessRules();
   }
@@ -259,6 +268,77 @@ export class BusinessEntity extends BaseDomainEntity {
     return this._ownerId;
   }
 
+  get businessType(): BusinessType {
+    return this._businessType;
+  }
+
+  get rootBusinessId(): string | undefined {
+    return this._rootBusinessId;
+  }
+
+  get hierarchy(): BusinessHierarchy {
+    return this._hierarchy;
+  }
+
+  get environments(): {
+    sandbox: EnvironmentConfig;
+    production: EnvironmentConfig;
+  } {
+    return this._environments;
+  }
+
+  get billing(): BillingInfo {
+    return this._billing;
+  }
+
+  get compliance(): ComplianceInfo {
+    return this._compliance;
+  }
+
+  get childBusinessIds(): string[] {
+    return this._childBusinessIds;
+  }
+
+  get tags(): string[] | undefined {
+    return this._metadata?.tags;
+  }
+
+  get memberCount(): number {
+    return this._metadata?.memberCount || 0;
+  }
+
+  get supportedCurrencies(): string[] | undefined {
+    return this._metadata?.supportedCurrencies;
+  }
+
+  get verifiedAt(): Date | undefined {
+    return this._metadata?.verifiedAt;
+  }
+
+  get suspendedAt(): Date | undefined {
+    return this._metadata?.suspendedAt;
+  }
+
+  get closedAt(): Date | undefined {
+    return this._metadata?.closedAt;
+  }
+
+  get suspensionReason(): string | undefined {
+    return this._metadata?.suspensionReason;
+  }
+
+  get closureReason(): string | undefined {
+    return this._metadata?.closureReason;
+  }
+
+  get termsAcceptedAt(): Date | undefined {
+    return this._metadata?.termsAcceptedAt;
+  }
+
+  get termsVersion(): string | undefined {
+    return this._metadata?.termsVersion;
+  }
+
   public updateDescription(description: string): void {
     this._description = description;
     this.touch();
@@ -313,20 +393,30 @@ export class BusinessEntity extends BaseDomainEntity {
   }
 
   public reactivate(): void {
-    if (this._status === BusinessStatus.SUSPENDED || this._status === BusinessStatus.INACTIVE) {
+    if (
+      this._status === BusinessStatus.SUSPENDED ||
+      this._status === BusinessStatus.INACTIVE
+    ) {
       this._status = BusinessStatus.ACTIVE;
       this.touch();
     } else {
-      throw new Error('Business can only be reactivated from SUSPENDED or INACTIVE status');
+      throw new Error(
+        'Business can only be reactivated from SUSPENDED or INACTIVE status',
+      );
     }
   }
 
   public deactivate(): void {
-    if (this._status === BusinessStatus.ACTIVE || this._status === BusinessStatus.SUSPENDED) {
+    if (
+      this._status === BusinessStatus.ACTIVE ||
+      this._status === BusinessStatus.SUSPENDED
+    ) {
       this._status = BusinessStatus.INACTIVE;
       this.touch();
     } else {
-      throw new Error('Business can only be deactivated from ACTIVE or SUSPENDED status');
+      throw new Error(
+        'Business can only be deactivated from ACTIVE or SUSPENDED status',
+      );
     }
   }
 
@@ -342,7 +432,9 @@ export class BusinessEntity extends BaseDomainEntity {
       this._verificationStatus = VerificationStatus.PENDING;
       this.touch();
     } else {
-      throw new Error('Business can only be submitted for verification from UNVERIFIED status');
+      throw new Error(
+        'Business can only be submitted for verification from UNVERIFIED status',
+      );
     }
   }
 
@@ -351,7 +443,9 @@ export class BusinessEntity extends BaseDomainEntity {
       this._verificationStatus = VerificationStatus.VERIFIED;
       this.touch();
     } else {
-      throw new Error('Only businesses with PENDING verification can be marked as verified');
+      throw new Error(
+        'Only businesses with PENDING verification can be marked as verified',
+      );
     }
   }
 
@@ -360,7 +454,9 @@ export class BusinessEntity extends BaseDomainEntity {
       this._verificationStatus = VerificationStatus.REJECTED;
       this.touch();
     } else {
-      throw new Error('Only businesses with PENDING verification can be rejected');
+      throw new Error(
+        'Only businesses with PENDING verification can be rejected',
+      );
     }
   }
 
@@ -373,7 +469,7 @@ export class BusinessEntity extends BaseDomainEntity {
     }
   }
 
-  public isActive(): boolean {
+  public isBusinessActive(): boolean {
     return this._status === BusinessStatus.ACTIVE;
   }
 
@@ -386,8 +482,10 @@ export class BusinessEntity extends BaseDomainEntity {
   }
 
   public canHaveSubsidiaries(): boolean {
-    return this._settings.allowSubsidiaries && 
-           this._childBusinessIds.length < this._billing.limits.maxSubBusinesses;
+    return (
+      this._settings.allowSubsidiaries &&
+      this._childBusinessIds.length < this._billing.limits.maxSubBusinesses
+    );
   }
 
   public canAddMembers(): boolean {
@@ -410,7 +508,7 @@ export class BusinessEntity extends BaseDomainEntity {
     if (!this.canHaveSubsidiaries()) {
       throw new Error('Business cannot have subsidiaries or limit exceeded');
     }
-    
+
     if (!this._childBusinessIds.includes(childBusinessId)) {
       this._childBusinessIds.push(childBusinessId);
       this.touch();
@@ -429,13 +527,16 @@ export class BusinessEntity extends BaseDomainEntity {
     environment: Environment,
     name: string,
     scopes: string[],
-    rateLimit?: number
+    rateLimit?: number,
   ): APIKey {
     if (environment === Environment.PRODUCTION && !this.isVerified()) {
       throw new Error('Production API keys require business verification');
     }
 
-    if (environment === Environment.PRODUCTION && !this._compliance.contractSigned) {
+    if (
+      environment === Environment.PRODUCTION &&
+      !this._compliance.contractSigned
+    ) {
       throw new Error('Production API keys require signed contract');
     }
 
@@ -447,8 +548,12 @@ export class BusinessEntity extends BaseDomainEntity {
       environment,
       scopes,
       isActive: true,
-      rateLimit: rateLimit || this._environments[environment.toLowerCase() as 'sandbox' | 'production'].rateLimit,
-      createdAt: new Date()
+      rateLimit:
+        rateLimit ||
+        this._environments[
+          environment.toLowerCase() as 'sandbox' | 'production'
+        ].rateLimit,
+      createdAt: new Date(),
     };
 
     const envKey = environment.toLowerCase() as 'sandbox' | 'production';
@@ -460,8 +565,10 @@ export class BusinessEntity extends BaseDomainEntity {
 
   public revokeAPIKey(keyId: string, environment: Environment): void {
     const envKey = environment.toLowerCase() as 'sandbox' | 'production';
-    const keyIndex = this._environments[envKey].apiKeys.findIndex(key => key.id === keyId);
-    
+    const keyIndex = this._environments[envKey].apiKeys.findIndex(
+      (key) => key.id === keyId,
+    );
+
     if (keyIndex > -1) {
       this._environments[envKey].apiKeys[keyIndex].isActive = false;
       this.touch();
@@ -471,7 +578,10 @@ export class BusinessEntity extends BaseDomainEntity {
   public validateAPIKey(apiKey: string): APIKey | null {
     for (const env of ['sandbox', 'production'] as const) {
       const key = this._environments[env].apiKeys.find(
-        k => k.key === apiKey && k.isActive && (!k.expiresAt || k.expiresAt > new Date())
+        (k) =>
+          k.key === apiKey &&
+          k.isActive &&
+          (!k.expiresAt || k.expiresAt > new Date()),
       );
       if (key) return key;
     }
@@ -481,15 +591,19 @@ export class BusinessEntity extends BaseDomainEntity {
   public trackUsage(apiCallCount: number = 1): void {
     this._billing.usage.apiCallsToday += apiCallCount;
     this._billing.usage.apiCallsMonth += apiCallCount;
-    
-    if (this._billing.usage.apiCallsToday > this._billing.limits.apiCallsPerDay) {
+
+    if (
+      this._billing.usage.apiCallsToday > this._billing.limits.apiCallsPerDay
+    ) {
       throw new Error('Daily API call limit exceeded');
     }
-    
-    if (this._billing.usage.apiCallsMonth > this._billing.limits.apiCallsPerMonth) {
+
+    if (
+      this._billing.usage.apiCallsMonth > this._billing.limits.apiCallsPerMonth
+    ) {
       throw new Error('Monthly API call limit exceeded');
     }
-    
+
     this.touch();
   }
 
@@ -503,25 +617,25 @@ export class BusinessEntity extends BaseDomainEntity {
     if (!this.isVerified()) {
       throw new Error('Business verification required for production access');
     }
-    
+
     if (!this._compliance.contractSigned) {
       throw new Error('Service agreement must be signed for production access');
     }
-    
+
     this._environments.production.isEnabled = true;
     this.touch();
   }
 
   public updateBillingTier(tier: 'FREE' | 'STARTUP' | 'ENTERPRISE'): void {
     this._billing.tier = tier;
-    
+
     switch (tier) {
       case 'FREE':
         this._billing.limits = {
           apiCallsPerDay: 1000,
           apiCallsPerMonth: 10000,
           maxSubBusinesses: 1,
-          maxMembers: 3
+          maxMembers: 3,
         };
         break;
       case 'STARTUP':
@@ -529,7 +643,7 @@ export class BusinessEntity extends BaseDomainEntity {
           apiCallsPerDay: 10000,
           apiCallsPerMonth: 100000,
           maxSubBusinesses: 5,
-          maxMembers: 10
+          maxMembers: 10,
         };
         break;
       case 'ENTERPRISE':
@@ -537,11 +651,11 @@ export class BusinessEntity extends BaseDomainEntity {
           apiCallsPerDay: 100000,
           apiCallsPerMonth: 1000000,
           maxSubBusinesses: 50,
-          maxMembers: 100
+          maxMembers: 100,
         };
         break;
     }
-    
+
     this.touch();
   }
 
@@ -554,11 +668,14 @@ export class BusinessEntity extends BaseDomainEntity {
     return this._hierarchy.allowedChildTypes.includes(childType);
   }
 
-  public cascadeStatusChange(newStatus: BusinessStatus, childBusinessIds: string[]): void {
+  public cascadeStatusChange(
+    newStatus: BusinessStatus,
+    childBusinessIds: string[],
+  ): void {
     if (!this._settings.cascadeStatusChanges) {
       return;
     }
-    
+
     this._status = newStatus;
     this.touch();
   }
@@ -590,7 +707,11 @@ export class BusinessEntity extends BaseDomainEntity {
       throw new Error('Owner ID is required');
     }
 
-    if (!this._address.street || !this._address.city || !this._address.country) {
+    if (
+      !this._address.street ||
+      !this._address.city ||
+      !this._address.country
+    ) {
       throw new Error('Complete address is required');
     }
 
@@ -611,15 +732,24 @@ export class BusinessEntity extends BaseDomainEntity {
       throw new Error('Incorporation date cannot be in the future');
     }
 
-    if (this._hierarchy.level < 0 || this._hierarchy.level > this._hierarchy.maxDepth) {
+    if (
+      this._hierarchy.level < 0 ||
+      this._hierarchy.level > this._hierarchy.maxDepth
+    ) {
       throw new Error('Invalid hierarchy level');
     }
 
-    if (this._businessType === BusinessType.ROOT_ORGANIZATION && this._parentBusinessId) {
+    if (
+      this._businessType === BusinessType.ROOT_ORGANIZATION &&
+      this._parentBusinessId
+    ) {
       throw new Error('Root organization cannot have a parent');
     }
 
-    if (this._businessType !== BusinessType.ROOT_ORGANIZATION && !this._parentBusinessId) {
+    if (
+      this._businessType !== BusinessType.ROOT_ORGANIZATION &&
+      !this._parentBusinessId
+    ) {
       throw new Error('Non-root business must have a parent');
     }
 
@@ -635,10 +765,11 @@ export class BusinessEntity extends BaseDomainEntity {
     ownerId: string,
     address: BusinessAddress,
     contactInfo: ContactInfo,
-    industryCode: string
+    industryCode: string,
   ): BusinessEntity {
-    const businessId = Date.now().toString(36) + Math.random().toString(36).substring(2);
-    
+    const businessId =
+      Date.now().toString(36) + Math.random().toString(36).substring(2);
+
     return new BusinessEntity({
       id: businessId,
       name,
@@ -655,7 +786,7 @@ export class BusinessEntity extends BaseDomainEntity {
         level: 0,
         path: [businessId],
         maxDepth: 10,
-        allowedChildTypes: [BusinessType.SUBSIDIARY, BusinessType.DIVISION]
+        allowedChildTypes: [BusinessType.SUBSIDIARY, BusinessType.DIVISION],
       },
       settings: {
         allowSubsidiaries: true,
@@ -663,47 +794,47 @@ export class BusinessEntity extends BaseDomainEntity {
         maxMembers: 100,
         notificationPreferences: {},
         autoInheritPermissions: true,
-        cascadeStatusChanges: false
+        cascadeStatusChanges: false,
       },
       environments: {
         sandbox: {
           apiKeys: [],
           ipAllowlist: [],
           rateLimit: 100,
-          isEnabled: true
+          isEnabled: true,
         },
         production: {
           apiKeys: [],
           ipAllowlist: [],
           rateLimit: 0,
-          isEnabled: false
-        }
+          isEnabled: false,
+        },
       },
       billing: {
         tier: 'FREE',
         usage: {
           apiCallsToday: 0,
           apiCallsMonth: 0,
-          lastResetDate: new Date()
+          lastResetDate: new Date(),
         },
         limits: {
           apiCallsPerDay: 1000,
           apiCallsPerMonth: 10000,
           maxSubBusinesses: 1,
-          maxMembers: 3
-        }
+          maxMembers: 3,
+        },
       },
       compliance: {
         kycStatus: VerificationStatus.UNVERIFIED,
         contractSigned: false,
         dataResidency: 'US',
-        complianceDocuments: []
+        complianceDocuments: [],
       },
       metadata: {
         createdVia: 'web',
-        isRootOrganization: true
+        isRootOrganization: true,
       },
-      childBusinessIds: []
+      childBusinessIds: [],
     });
   }
 
@@ -711,22 +842,25 @@ export class BusinessEntity extends BaseDomainEntity {
     name: string,
     businessType: BusinessType,
     parentBusiness: BusinessEntity,
-    ownerId: string
+    ownerId: string,
   ): BusinessEntity {
     if (!parentBusiness.canCreateChildOfType(businessType)) {
-      throw new Error(`Parent business cannot create child of type ${businessType}`);
+      throw new Error(
+        `Parent business cannot create child of type ${businessType}`,
+      );
     }
 
     if (!parentBusiness.canHaveSubsidiaries()) {
       throw new Error('Parent business cannot have more subsidiaries');
     }
 
-    const businessId = Date.now().toString(36) + Math.random().toString(36).substring(2);
+    const businessId =
+      Date.now().toString(36) + Math.random().toString(36).substring(2);
     const newLevel = parentBusiness.getHierarchyLevel() + 1;
     const newPath = [...parentBusiness.getHierarchyPath(), businessId];
 
     const allowedChildTypes = this.getAllowedChildTypes(businessType);
-    
+
     return new BusinessEntity({
       id: businessId,
       name,
@@ -737,8 +871,8 @@ export class BusinessEntity extends BaseDomainEntity {
       address: parentBusiness.address,
       contactInfo: parentBusiness.contactInfo,
       status: BusinessStatus.ACTIVE,
-      verificationStatus: parentBusiness._settings.autoInheritPermissions 
-        ? parentBusiness._verificationStatus 
+      verificationStatus: parentBusiness._settings.autoInheritPermissions
+        ? parentBusiness._verificationStatus
         : VerificationStatus.UNVERIFIED,
       parentBusinessId: parentBusiness.id,
       rootBusinessId: parentBusiness._rootBusinessId || parentBusiness.id,
@@ -747,56 +881,70 @@ export class BusinessEntity extends BaseDomainEntity {
         level: newLevel,
         path: newPath,
         maxDepth: parentBusiness._hierarchy.maxDepth,
-        allowedChildTypes
+        allowedChildTypes,
       },
       settings: {
         ...parentBusiness._settings,
-        allowSubsidiaries: newLevel < parentBusiness._hierarchy.maxDepth - 1
+        allowSubsidiaries: newLevel < parentBusiness._hierarchy.maxDepth - 1,
       },
       environments: {
         sandbox: {
           apiKeys: [],
           ipAllowlist: [],
-          rateLimit: Math.floor(parentBusiness._environments.sandbox.rateLimit * 0.5),
-          isEnabled: true
+          rateLimit: Math.floor(
+            parentBusiness._environments.sandbox.rateLimit * 0.5,
+          ),
+          isEnabled: true,
         },
         production: {
           apiKeys: [],
           ipAllowlist: [],
-          rateLimit: Math.floor(parentBusiness._environments.production.rateLimit * 0.5),
-          isEnabled: parentBusiness._environments.production.isEnabled
-        }
+          rateLimit: Math.floor(
+            parentBusiness._environments.production.rateLimit * 0.5,
+          ),
+          isEnabled: parentBusiness._environments.production.isEnabled,
+        },
       },
       billing: {
         ...parentBusiness._billing,
         usage: {
           apiCallsToday: 0,
           apiCallsMonth: 0,
-          lastResetDate: new Date()
+          lastResetDate: new Date(),
         },
         limits: {
-          apiCallsPerDay: Math.floor(parentBusiness._billing.limits.apiCallsPerDay * 0.3),
-          apiCallsPerMonth: Math.floor(parentBusiness._billing.limits.apiCallsPerMonth * 0.3),
-          maxSubBusinesses: Math.floor(parentBusiness._billing.limits.maxSubBusinesses * 0.5),
-          maxMembers: Math.floor(parentBusiness._billing.limits.maxMembers * 0.5)
-        }
+          apiCallsPerDay: Math.floor(
+            parentBusiness._billing.limits.apiCallsPerDay * 0.3,
+          ),
+          apiCallsPerMonth: Math.floor(
+            parentBusiness._billing.limits.apiCallsPerMonth * 0.3,
+          ),
+          maxSubBusinesses: Math.floor(
+            parentBusiness._billing.limits.maxSubBusinesses * 0.5,
+          ),
+          maxMembers: Math.floor(
+            parentBusiness._billing.limits.maxMembers * 0.5,
+          ),
+        },
       },
       compliance: {
         ...parentBusiness._compliance,
-        kycStatus: parentBusiness._settings.autoInheritPermissions 
-          ? parentBusiness._compliance.kycStatus 
-          : VerificationStatus.UNVERIFIED
+        kycStatus: parentBusiness._settings.autoInheritPermissions
+          ? parentBusiness._compliance.kycStatus
+          : VerificationStatus.UNVERIFIED,
       },
       metadata: {
         createdVia: 'sub-business',
         parentBusinessId: parentBusiness.id,
-        inheritedFrom: parentBusiness.id
+        inheritedFrom: parentBusiness.id,
       },
-      childBusinessIds: []
+      childBusinessIds: [],
     });
   }
 
-  private static getAllowedChildTypes(businessType: BusinessType): BusinessType[] {
+  private static getAllowedChildTypes(
+    businessType: BusinessType,
+  ): BusinessType[] {
     switch (businessType) {
       case BusinessType.ROOT_ORGANIZATION:
         return [BusinessType.SUBSIDIARY, BusinessType.DIVISION];

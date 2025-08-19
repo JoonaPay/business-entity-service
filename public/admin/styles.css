@@ -1,0 +1,288 @@
+/* Custom AdminJS Styles for Business Entity Service */
+
+/* Brand colors */
+:root {
+  --primary-color: #667eea;
+  --primary-dark: #5a67d8;
+  --secondary-color: #764ba2;
+  --success-color: #48bb78;
+  --warning-color: #ed8936;
+  --error-color: #f56565;
+  --background-light: #f7fafc;
+  --text-dark: #2d3748;
+  --text-light: #718096;
+}
+
+/* Header customization */
+.AdminJS_SidebarBranding {
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+  color: white;
+  font-weight: 600;
+  padding: 1rem;
+  border-radius: 8px;
+  margin: 1rem;
+}
+
+/* Sidebar styling */
+.AdminJS_SidebarNav {
+  background-color: #f8f9fa;
+  border-right: 1px solid #e2e8f0;
+}
+
+.AdminJS_SidebarNav a {
+  color: var(--text-dark);
+  transition: all 0.2s ease;
+}
+
+.AdminJS_SidebarNav a:hover {
+  background-color: var(--background-light);
+  color: var(--primary-color);
+}
+
+.AdminJS_SidebarNav a.active {
+  background-color: var(--primary-color);
+  color: white;
+  border-radius: 4px;
+  margin: 0 8px;
+}
+
+/* Button styling */
+.btn-primary {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+  border-radius: 6px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-dark);
+  border-color: var(--primary-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+}
+
+.btn-success {
+  background-color: var(--success-color);
+  border-color: var(--success-color);
+}
+
+.btn-warning {
+  background-color: var(--warning-color);
+  border-color: var(--warning-color);
+}
+
+.btn-danger {
+  background-color: var(--error-color);
+  border-color: var(--error-color);
+}
+
+/* Table styling */
+.table {
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.table th {
+  background-color: var(--background-light);
+  color: var(--text-dark);
+  font-weight: 600;
+  border: none;
+  padding: 1rem;
+}
+
+.table td {
+  border-color: #e2e8f0;
+  padding: 0.75rem 1rem;
+  vertical-align: middle;
+}
+
+.table tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+/* Form styling */
+.form-control {
+  border-radius: 6px;
+  border-color: #e2e8f0;
+  transition: all 0.2s ease;
+}
+
+.form-control:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+.form-group label {
+  color: var(--text-dark);
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+/* Card styling */
+.card {
+  border-radius: 12px;
+  border: none;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+  transition: all 0.2s ease;
+}
+
+.card:hover {
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+  background-color: var(--background-light);
+  border-bottom: 1px solid #e2e8f0;
+  border-radius: 12px 12px 0 0 !important;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+/* Status badges */
+.badge {
+  border-radius: 20px;
+  font-weight: 500;
+  font-size: 0.75rem;
+  padding: 0.35rem 0.75rem;
+}
+
+.badge-success {
+  background-color: var(--success-color);
+}
+
+.badge-warning {
+  background-color: var(--warning-color);
+}
+
+.badge-danger {
+  background-color: var(--error-color);
+}
+
+.badge-info {
+  background-color: var(--primary-color);
+}
+
+/* Dashboard widgets */
+.dashboard-widget {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+  border-left: 4px solid var(--primary-color);
+  margin-bottom: 1.5rem;
+}
+
+.dashboard-widget h3 {
+  color: var(--text-dark);
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.dashboard-widget .metric {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--primary-color);
+}
+
+/* Navigation improvements */
+.navbar {
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-brand {
+  color: white !important;
+  font-weight: 600;
+}
+
+/* Footer styling */
+.footer {
+  background-color: var(--background-light);
+  border-top: 1px solid #e2e8f0;
+  padding: 1rem;
+  text-align: center;
+  color: var(--text-light);
+  font-size: 0.875rem;
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+  .dashboard-widget {
+    padding: 1.5rem;
+  }
+  
+  .table-responsive {
+    font-size: 0.875rem;
+  }
+  
+  .btn {
+    font-size: 0.875rem;
+    padding: 0.5rem 1rem;
+  }
+}
+
+/* Loading states */
+.loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.spinner {
+  border: 2px solid #f3f3f3;
+  border-top: 2px solid var(--primary-color);
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  animation: spin 1s linear infinite;
+  display: inline-block;
+  margin-left: 0.5rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Custom business entity specific styles */
+.business-entity-card {
+  border-left: 4px solid var(--primary-color);
+}
+
+.business-entity-card.active {
+  border-left-color: var(--success-color);
+}
+
+.business-entity-card.inactive {
+  border-left-color: var(--text-light);
+}
+
+.business-entity-card.suspended {
+  border-left-color: var(--error-color);
+}
+
+.business-type-badge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.business-type-corporation {
+  background-color: #ebf8ff;
+  color: #2b6cb0;
+}
+
+.business-type-llc {
+  background-color: #f0fff4;
+  color: #276749;
+}
+
+.business-type-partnership {
+  background-color: #fefcbf;
+  color: #744210;
+}

@@ -1,9 +1,9 @@
-import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
-import { BusinessmemberMapper } from "@modules/business-member/infrastructure/mappers/business-member.mapper";
-import { BusinessmemberOrmEntity } from "@modules/business-member/infrastructure/orm-entities/business-member.orm-entity";
-import { BusinessMember } from "@modules/business-member/domain/entities/business-member.entity";
-import { Injectable } from "@nestjs/common";
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { BusinessmemberMapper } from '@modules/business-member/infrastructure/mappers/business-member.mapper';
+import { BusinessmemberOrmEntity } from '@modules/business-member/infrastructure/orm-entities/business-member.orm-entity';
+import { BusinessMember } from '@modules/business-member/domain/entities/business-member.entity';
+import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class BusinessmemberRepository {
@@ -39,10 +39,7 @@ export class BusinessmemberRepository {
     );
   }
 
-  async update(
-    id: string,
-    entity: BusinessMember,
-  ): Promise<BusinessMember> {
+  async update(id: string, entity: BusinessMember): Promise<BusinessMember> {
     const ormEntity = this.mapper.toOrmEntity(entity);
     await this.repository.update(id, ormEntity);
     return entity;

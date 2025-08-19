@@ -1,36 +1,38 @@
-import { MigrationInterface, QueryRunner, Table } from "typeorm";
+import { MigrationInterface, QueryRunner, Table } from 'typeorm';
 
-export class CreateBusinessInvitationTable1755545936109 implements MigrationInterface {
+export class CreateBusinessInvitationTable1755545936109
+  implements MigrationInterface
+{
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(
       new Table({
-        name: "business_invitations",
+        name: 'business_invitations',
         columns: [
           {
-            name: "id",
-            type: "uuid",
+            name: 'id',
+            type: 'uuid',
             isPrimary: true,
-            generationStrategy: "uuid",
-            default: "uuid_generate_v4()",
+            generationStrategy: 'uuid',
+            default: 'uuid_generate_v4()',
           },
           {
-            name: "is_active",
-            type: "boolean",
+            name: 'is_active',
+            type: 'boolean',
             default: true,
           },
           {
-            name: "created_at",
-            type: "timestamp",
-            default: "CURRENT_TIMESTAMP",
+            name: 'created_at',
+            type: 'timestamp',
+            default: 'CURRENT_TIMESTAMP',
           },
           {
-            name: "updated_at",
-            type: "timestamp",
-            default: "CURRENT_TIMESTAMP",
+            name: 'updated_at',
+            type: 'timestamp',
+            default: 'CURRENT_TIMESTAMP',
           },
           {
-            name: "deleted_at",
-            type: "timestamp",
+            name: 'deleted_at',
+            type: 'timestamp',
             isNullable: true,
           },
           // Add your custom columns here
@@ -41,6 +43,6 @@ export class CreateBusinessInvitationTable1755545936109 implements MigrationInte
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.dropTable("business_invitations");
+    await queryRunner.dropTable('business_invitations');
   }
 }

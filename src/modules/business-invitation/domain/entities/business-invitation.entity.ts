@@ -7,13 +7,13 @@ export enum InvitationStatus {
   ACCEPTED = 'ACCEPTED',
   REJECTED = 'REJECTED',
   EXPIRED = 'EXPIRED',
-  CANCELLED = 'CANCELLED'
+  CANCELLED = 'CANCELLED',
 }
 
 export enum InvitationType {
   EMAIL = 'EMAIL',
   DIRECT = 'DIRECT',
-  BULK = 'BULK'
+  BULK = 'BULK',
 }
 
 export interface InvitationNotification {
@@ -67,7 +67,7 @@ export class BusinessInvitation extends BaseDomainEntity {
 
   constructor(props: BusinessInvitationProps) {
     super(props.id);
-    
+
     this._businessId = props.businessId;
     this._email = props.email.toLowerCase().trim();
     this._roleId = props.roleId;
@@ -166,7 +166,7 @@ export class BusinessInvitation extends BaseDomainEntity {
     if (this._status !== InvitationStatus.PENDING) {
       throw new Error('Can only update role for pending invitations');
     }
-    
+
     this._roleId = roleId;
     this._permissions = [...permissions];
     this.touch();
@@ -176,7 +176,7 @@ export class BusinessInvitation extends BaseDomainEntity {
     if (this._status !== InvitationStatus.PENDING) {
       throw new Error('Can only update message for pending invitations');
     }
-    
+
     this._message = message;
     this.touch();
   }
@@ -185,15 +185,17 @@ export class BusinessInvitation extends BaseDomainEntity {
     if (this._status !== InvitationStatus.PENDING) {
       throw new Error('Can only extend expiration for pending invitations');
     }
-    
+
     if (newExpirationDate <= new Date()) {
       throw new Error('New expiration date must be in the future');
     }
-    
+
     if (newExpirationDate <= this._expiresAt) {
-      throw new Error('New expiration date must be later than current expiration');
+      throw new Error(
+        'New expiration date must be later than current expiration',
+      );
     }
-    
+
     this._expiresAt = newExpirationDate;
     this.touch();
   }
@@ -202,11 +204,11 @@ export class BusinessInvitation extends BaseDomainEntity {
     if (this._status !== InvitationStatus.PENDING) {
       throw new Error('Only pending invitations can be accepted');
     }
-    
+
     if (this.isExpired()) {
       throw new Error('Cannot accept expired invitation');
     }
-    
+
     this._status = InvitationStatus.ACCEPTED;
     this._acceptedAt = new Date();
     this._acceptedBy = acceptedBy;
@@ -217,7 +219,7 @@ export class BusinessInvitation extends BaseDomainEntity {
     if (this._status !== InvitationStatus.PENDING) {
       throw new Error('Only pending invitations can be rejected');
     }
-    
+
     this._status = InvitationStatus.REJECTED;
     this._rejectedAt = new Date();
     this.touch();
@@ -227,7 +229,7 @@ export class BusinessInvitation extends BaseDomainEntity {
     if (this._status !== InvitationStatus.PENDING) {
       throw new Error('Only pending invitations can be cancelled');
     }
-    
+
     this._status = InvitationStatus.CANCELLED;
     this._cancelledAt = new Date();
     this.touch();
@@ -244,33 +246,36 @@ export class BusinessInvitation extends BaseDomainEntity {
     if (this._status !== InvitationStatus.PENDING) {
       throw new Error('Can only resend pending invitations');
     }
-    
+
     if (this._resendCount >= 5) {
       throw new Error('Maximum resend limit (5) reached');
     }
-    
+
     const now = new Date();
-    if (this._lastResendAt && (now.getTime() - this._lastResendAt.getTime()) < 60000) {
+    if (
+      this._lastResendAt &&
+      now.getTime() - this._lastResendAt.getTime() < 60000
+    ) {
       throw new Error('Must wait at least 1 minute between resends');
     }
-    
+
     this._resendCount++;
     this._lastResendAt = now;
-    
+
     if (newExpirationDate) {
       this._expiresAt = newExpirationDate;
     }
-    
+
     this.touch();
   }
 
   public addNotification(notification: InvitationNotification): void {
     this._notifications.push(notification);
-    
+
     if (this._notifications.length > 50) {
       this._notifications = this._notifications.slice(-50);
     }
-    
+
     this.touch();
   }
 
@@ -300,24 +305,26 @@ export class BusinessInvitation extends BaseDomainEntity {
   }
 
   public canBeResent(): boolean {
-    return this._status === InvitationStatus.PENDING && 
-           this._resendCount < 5 && 
-           !this.isExpired();
+    return (
+      this._status === InvitationStatus.PENDING &&
+      this._resendCount < 5 &&
+      !this.isExpired()
+    );
   }
 
   public getExpirationStatus(): 'VALID' | 'EXPIRING_SOON' | 'EXPIRED' {
     if (this.isExpired()) {
       return 'EXPIRED';
     }
-    
+
     const now = new Date();
     const timeDiff = this._expiresAt.getTime() - now.getTime();
     const hoursDiff = timeDiff / (1000 * 60 * 60);
-    
+
     if (hoursDiff <= 24) {
       return 'EXPIRING_SOON';
     }
-    
+
     return 'VALID';
   }
 
@@ -325,7 +332,7 @@ export class BusinessInvitation extends BaseDomainEntity {
     if (this.isExpired()) {
       return 0;
     }
-    
+
     const now = new Date();
     const timeDiff = this._expiresAt.getTime() - now.getTime();
     return Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
@@ -335,8 +342,9 @@ export class BusinessInvitation extends BaseDomainEntity {
     if (this._notifications.length === 0) {
       return 'NONE';
     }
-    
-    const lastNotification = this._notifications[this._notifications.length - 1];
+
+    const lastNotification =
+      this._notifications[this._notifications.length - 1];
     return lastNotification.deliveryStatus;
   }
 
@@ -408,7 +416,7 @@ export class BusinessInvitation extends BaseDomainEntity {
     permissions: Permission[],
     message?: string,
     expirationDays: number = 7,
-    invitationType: InvitationType = InvitationType.EMAIL
+    invitationType: InvitationType = InvitationType.EMAIL,
   ): BusinessInvitation {
     const token = uuidv4() + '-' + Date.now().toString(36);
     const expiresAt = new Date();
@@ -427,10 +435,10 @@ export class BusinessInvitation extends BaseDomainEntity {
       permissions,
       metadata: {
         createdVia: invitationType,
-        expirationDays
+        expirationDays,
       },
       notifications: [],
-      resendCount: 0
+      resendCount: 0,
     });
   }
 
@@ -441,7 +449,7 @@ export class BusinessInvitation extends BaseDomainEntity {
     invitedBy: string,
     permissions: Permission[],
     batchId: string,
-    expirationDays: number = 7
+    expirationDays: number = 7,
   ): BusinessInvitation {
     const invitation = BusinessInvitation.create(
       businessId,
@@ -451,7 +459,7 @@ export class BusinessInvitation extends BaseDomainEntity {
       permissions,
       undefined,
       expirationDays,
-      InvitationType.BULK
+      InvitationType.BULK,
     );
 
     invitation._metadata.batchId = batchId;

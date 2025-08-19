@@ -44,4 +44,12 @@ export abstract class BaseDomainEntity {
   public isDeleted(): boolean {
     return this._deletedAt !== undefined;
   }
+
+  public softDelete(): void {
+    this.markDeleted();
+  }
+
+  public isActive(): boolean {
+    return !this.isDeleted();
+  }
 }

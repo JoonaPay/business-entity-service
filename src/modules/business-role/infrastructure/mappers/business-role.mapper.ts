@@ -1,6 +1,6 @@
-import { BusinessroleOrmEntity } from "@modules/business-role/infrastructure/orm-entities/business-role.orm-entity";
-import { BusinessRole } from "@modules/business-role/domain/entities/business-role.entity";
-import { Injectable } from "@nestjs/common";
+import { BusinessroleOrmEntity } from '@modules/business-role/infrastructure/orm-entities/business-role.orm-entity';
+import { BusinessRole } from '@modules/business-role/domain/entities/business-role.entity';
+import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class BusinessroleMapper {
@@ -23,7 +23,7 @@ export class BusinessroleMapper {
     ormEntity.is_customizable = domainEntity.isCustomizable;
     ormEntity.hierarchy = domainEntity.hierarchy;
     ormEntity.metadata = domainEntity.metadata;
-    
+
     return ormEntity;
   }
 

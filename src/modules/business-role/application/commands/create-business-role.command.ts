@@ -1,11 +1,11 @@
-import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
-import { CreateBusinessroleUseCase } from "@modules/business-role/application/usecases/create-business-role.use-case";
-import { CreateBusinessroleDto } from "@modules/business-role/application/dto/requests/create-business-role.dto";
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { CreateBusinessroleUseCase } from '@modules/business-role/application/usecases/create-business-role.use-case';
+import { CreateBusinessroleDto } from '@modules/business-role/application/dto/requests/create-business-role.dto';
 
 export class CreateBusinessroleCommand {
   // Add your command properties here
   // They should match your entity properties in camelCase
-  
+
   constructor(
     data: CreateBusinessroleDto,
     public readonly contextId: string, // e.g., userId, tenantId

@@ -13,11 +13,14 @@ export class BusinessMemberCreationJob {
   async processScheduledMemberCreations() {
     // Process any scheduled member creations
     // Using the SAME use case as controller and event handler
-    
+
     const scheduledCreations = await this.getScheduledCreations(); // Mock method
-    
+
     for (const creation of scheduledCreations) {
-      const command = new CreateBusinessmemberCommand(creation, 'scheduled-job');
+      const command = new CreateBusinessmemberCommand(
+        creation,
+        'scheduled-job',
+      );
       await this.createBusinessMemberUseCase.execute(command);
     }
   }

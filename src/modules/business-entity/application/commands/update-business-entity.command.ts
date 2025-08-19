@@ -1,5 +1,5 @@
-import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
-import { UpdateBusinessEntityUseCase } from "../usecases/update-business-entity.use-case";
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { UpdateBusinessEntityUseCase } from '../usecases/update-business-entity.use-case';
 
 export class UpdateBusinessEntityCommand {
   constructor(

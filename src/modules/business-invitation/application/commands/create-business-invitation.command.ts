@@ -1,6 +1,6 @@
-import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
-import { CreateBusinessInvitationUseCase } from "@modules/business-invitation/application/usecases";
-import { CreateBusinessInvitationDto } from "@modules/business-invitation/application/dto/requests";
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { CreateBusinessInvitationUseCase } from '@modules/business-invitation/application/usecases';
+import { CreateBusinessInvitationDto } from '@modules/business-invitation/application/dto/requests';
 
 export class CreateBusinessInvitationCommand {
   public readonly businessId: string;
@@ -8,7 +8,7 @@ export class CreateBusinessInvitationCommand {
   public readonly roleId: string;
   public readonly invitedBy: string;
   public readonly message?: string;
-  
+
   constructor(
     data: CreateBusinessInvitationDto,
     public readonly contextId: string,

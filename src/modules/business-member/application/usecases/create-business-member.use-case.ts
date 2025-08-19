@@ -1,7 +1,7 @@
-import { BusinessMember } from "@modules/business-member/domain/entities/business-member.entity";
-import { BusinessmemberRepository } from "@modules/business-member/infrastructure/repositories/business-member.repository";
-import { CreateBusinessmemberCommand } from "@modules/business-member/application/commands/create-business-member.command";
-import { Injectable } from "@nestjs/common";
+import { BusinessMember } from '@modules/business-member/domain/entities/business-member.entity';
+import { BusinessmemberRepository } from '@modules/business-member/infrastructure/repositories/business-member.repository';
+import { CreateBusinessmemberCommand } from '@modules/business-member/application/commands/create-business-member.command';
+import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class CreateBusinessmemberUseCase {

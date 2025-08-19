@@ -1,3 +1,5 @@
 export * from './business-entity.repository';
 
-export const Repositories = [];
+import { BusinessEntityRepository } from './business-entity.repository';
+
+export const Repositories = [BusinessEntityRepository];

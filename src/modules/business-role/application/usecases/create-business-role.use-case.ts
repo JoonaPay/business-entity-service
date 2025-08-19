@@ -1,7 +1,7 @@
-import { BusinessRole } from "@modules/business-role/domain/entities/business-role.entity";
-import { BusinessroleRepository } from "@modules/business-role/infrastructure/repositories/business-role.repository";
-import { CreateBusinessroleCommand } from "@modules/business-role/application/commands/create-business-role.command";
-import { Injectable } from "@nestjs/common";
+import { BusinessRole } from '@modules/business-role/domain/entities/business-role.entity';
+import { BusinessroleRepository } from '@modules/business-role/infrastructure/repositories/business-role.repository';
+import { CreateBusinessroleCommand } from '@modules/business-role/application/commands/create-business-role.command';
+import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class CreateBusinessroleUseCase {

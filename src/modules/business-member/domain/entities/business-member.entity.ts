@@ -5,7 +5,7 @@ export enum MemberStatus {
   ACTIVE = 'ACTIVE',
   INACTIVE = 'INACTIVE',
   SUSPENDED = 'SUSPENDED',
-  PENDING = 'PENDING'
+  PENDING = 'PENDING',
 }
 
 export interface MemberActivity {
@@ -44,7 +44,7 @@ export class BusinessMember extends BaseDomainEntity {
 
   constructor(props: BusinessMemberProps) {
     super(props.id);
-    
+
     this._businessId = props.businessId;
     this._userId = props.userId;
     this._roleId = props.roleId;
@@ -108,17 +108,17 @@ export class BusinessMember extends BaseDomainEntity {
     if (this._isOwner) {
       throw new Error('Owner role cannot be changed');
     }
-    
+
     const oldRoleId = this._roleId;
     this._roleId = newRoleId;
     this._permissions = [...newPermissions];
-    
+
     this.addActivity('ROLE_CHANGED', {
       oldRoleId,
       newRoleId,
-      permissions: newPermissions
+      permissions: newPermissions,
     });
-    
+
     this.touch();
   }
 
@@ -126,15 +126,15 @@ export class BusinessMember extends BaseDomainEntity {
     if (this._isOwner) {
       throw new Error('Owner permissions cannot be modified');
     }
-    
+
     const oldPermissions = [...this._permissions];
     this._permissions = [...permissions];
-    
+
     this.addActivity('PERMISSIONS_UPDATED', {
       oldPermissions,
-      newPermissions: permissions
+      newPermissions: permissions,
     });
-    
+
     this.touch();
   }
 
@@ -142,11 +142,11 @@ export class BusinessMember extends BaseDomainEntity {
     if (this._status === MemberStatus.ACTIVE) {
       return;
     }
-    
+
     if (this._status === MemberStatus.PENDING) {
       throw new Error('Pending members must be accepted first');
     }
-    
+
     this._status = MemberStatus.ACTIVE;
     this.addActivity('MEMBER_ACTIVATED');
     this.touch();
@@ -156,11 +156,11 @@ export class BusinessMember extends BaseDomainEntity {
     if (this._isOwner) {
       throw new Error('Business owner cannot be deactivated');
     }
-    
+
     if (this._status === MemberStatus.INACTIVE) {
       return;
     }
-    
+
     this._status = MemberStatus.INACTIVE;
     this.addActivity('MEMBER_DEACTIVATED');
     this.touch();
@@ -170,11 +170,11 @@ export class BusinessMember extends BaseDomainEntity {
     if (this._isOwner) {
       throw new Error('Business owner cannot be suspended');
     }
-    
+
     if (this._status === MemberStatus.SUSPENDED) {
       return;
     }
-    
+
     this._status = MemberStatus.SUSPENDED;
     this.addActivity('MEMBER_SUSPENDED', { reason });
     this.touch();
@@ -184,7 +184,7 @@ export class BusinessMember extends BaseDomainEntity {
     if (this._status !== MemberStatus.SUSPENDED) {
       throw new Error('Only suspended members can be unsuspended');
     }
-    
+
     this._status = MemberStatus.ACTIVE;
     this.addActivity('MEMBER_UNSUSPENDED');
     this.touch();
@@ -194,7 +194,7 @@ export class BusinessMember extends BaseDomainEntity {
     if (this._status !== MemberStatus.PENDING) {
       throw new Error('Only pending members can accept invitation');
     }
-    
+
     this._status = MemberStatus.ACTIVE;
     this.addActivity('INVITATION_ACCEPTED');
     this.touch();
@@ -204,17 +204,17 @@ export class BusinessMember extends BaseDomainEntity {
     if (!this._isOwner) {
       throw new Error('Only the current owner can transfer ownership');
     }
-    
+
     if (this._userId === newOwnerId) {
       throw new Error('Cannot transfer ownership to the same user');
     }
-    
+
     this._isOwner = false;
     this.addActivity('OWNERSHIP_TRANSFERRED', {
       newOwnerId,
-      previousOwner: this._userId
+      previousOwner: this._userId,
     });
-    
+
     this.touch();
   }
 
@@ -222,53 +222,65 @@ export class BusinessMember extends BaseDomainEntity {
     if (this._isOwner) {
       throw new Error('User is already an owner');
     }
-    
+
     this._isOwner = true;
     this._status = MemberStatus.ACTIVE;
-    
+
     this.addActivity('OWNERSHIP_RECEIVED', {
       fromUserId,
-      newOwner: this._userId
+      newOwner: this._userId,
     });
-    
+
     this.touch();
   }
 
   public hasPermission(permission: Permission): boolean {
-    return this._permissions.includes(permission) || 
-           this._permissions.includes(Permission.ADMIN_FULL_ACCESS) ||
-           this._isOwner;
+    return (
+      this._permissions.includes(permission) ||
+      this._permissions.includes(Permission.ADMIN_FULL_ACCESS) ||
+      this._isOwner
+    );
   }
 
   public hasAllPermissions(permissions: Permission[]): boolean {
-    if (this._isOwner || this._permissions.includes(Permission.ADMIN_FULL_ACCESS)) {
+    if (
+      this._isOwner ||
+      this._permissions.includes(Permission.ADMIN_FULL_ACCESS)
+    ) {
       return true;
     }
-    
-    return permissions.every(permission => this._permissions.includes(permission));
+
+    return permissions.every((permission) =>
+      this._permissions.includes(permission),
+    );
   }
 
   public hasAnyPermission(permissions: Permission[]): boolean {
-    if (this._isOwner || this._permissions.includes(Permission.ADMIN_FULL_ACCESS)) {
+    if (
+      this._isOwner ||
+      this._permissions.includes(Permission.ADMIN_FULL_ACCESS)
+    ) {
       return true;
     }
-    
-    return permissions.some(permission => this._permissions.includes(permission));
+
+    return permissions.some((permission) =>
+      this._permissions.includes(permission),
+    );
   }
 
   public canManageMember(targetMember: BusinessMember): boolean {
     if (this._isOwner) {
       return true;
     }
-    
+
     if (targetMember._isOwner) {
       return false;
     }
-    
+
     if (this._userId === targetMember._userId) {
       return false;
     }
-    
+
     return this.hasPermission(Permission.MEMBER_MANAGE);
   }
 
@@ -276,15 +288,15 @@ export class BusinessMember extends BaseDomainEntity {
     if (this._isOwner) {
       return !targetMember._isOwner;
     }
-    
+
     if (targetMember._isOwner) {
       return false;
     }
-    
+
     if (this._userId === targetMember._userId) {
       return false;
     }
-    
+
     return this.hasPermission(Permission.MEMBER_REMOVE);
   }
 
@@ -315,17 +327,17 @@ export class BusinessMember extends BaseDomainEntity {
   public getRecentActivity(days: number = 30): MemberActivity[] {
     const cutoffDate = new Date();
     cutoffDate.setDate(cutoffDate.getDate() - days);
-    
-    return this._activityHistory.filter(activity => 
-      activity.timestamp >= cutoffDate
-    ).sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+
+    return this._activityHistory
+      .filter((activity) => activity.timestamp >= cutoffDate)
+      .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
   }
 
   public getDaysSinceLastActivity(): number {
     if (!this._lastActivityAt) {
       return Infinity;
     }
-    
+
     const now = new Date();
     const diffTime = Math.abs(now.getTime() - this._lastActivityAt.getTime());
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
@@ -335,15 +347,15 @@ export class BusinessMember extends BaseDomainEntity {
     const activity: MemberActivity = {
       action,
       timestamp: new Date(),
-      details
+      details,
     };
-    
+
     this._activityHistory.push(activity);
-    
+
     if (this._activityHistory.length > 1000) {
       this._activityHistory = this._activityHistory.slice(-1000);
     }
-    
+
     this._lastActivityAt = activity.timestamp;
   }
 
@@ -379,9 +391,9 @@ export class BusinessMember extends BaseDomainEntity {
   }
 
   public static createOwner(
-    businessId: string, 
-    userId: string, 
-    roleId: string
+    businessId: string,
+    userId: string,
+    roleId: string,
   ): BusinessMember {
     return new BusinessMember({
       businessId,
@@ -392,11 +404,13 @@ export class BusinessMember extends BaseDomainEntity {
       permissions: [Permission.ADMIN_FULL_ACCESS],
       isOwner: true,
       metadata: { isFounder: true },
-      activityHistory: [{
-        action: 'BUSINESS_CREATED',
-        timestamp: new Date(),
-        details: { role: 'OWNER' }
-      }]
+      activityHistory: [
+        {
+          action: 'BUSINESS_CREATED',
+          timestamp: new Date(),
+          details: { role: 'OWNER' },
+        },
+      ],
     });
   }
 
@@ -405,7 +419,7 @@ export class BusinessMember extends BaseDomainEntity {
     userId: string,
     roleId: string,
     permissions: Permission[],
-    invitedBy: string
+    invitedBy: string,
   ): BusinessMember {
     return new BusinessMember({
       businessId,
@@ -417,11 +431,13 @@ export class BusinessMember extends BaseDomainEntity {
       permissions,
       isOwner: false,
       metadata: { source: 'invitation' },
-      activityHistory: [{
-        action: 'INVITATION_CREATED',
-        timestamp: new Date(),
-        details: { invitedBy }
-      }]
+      activityHistory: [
+        {
+          action: 'INVITATION_CREATED',
+          timestamp: new Date(),
+          details: { invitedBy },
+        },
+      ],
     });
   }
 }
